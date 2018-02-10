@@ -102,8 +102,10 @@ classdef QBSupervisor < simiam.controller.Supervisor
             obj.v           = 0.15;
             obj.goal        = [1.1, 1.1];
             obj.d_stop      = 0.05;
-            obj.d_at_obs    = 0.15;                
-            obj.d_unsafe    = 0.10;
+%             obj.d_at_obs    = 0.10;                
+            obj.d_at_obs    = 0.20;
+%             obj.d_unsafe    = 0.05;
+            obj.d_unsafe    = 0.15;
             
             obj.d_fw        = 0.15;
             obj.fw_direction   = 'left';
@@ -133,8 +135,9 @@ classdef QBSupervisor < simiam.controller.Supervisor
             inputs.y_g = obj.goal(2);
             
             %% START CODE BLOCK %%
-%             obj.progress_made()
+            
             ir_distances = obj.robot.get_ir_distances();
+            
             if (obj.check_event('at_goal'))
                 if (~obj.is_in_state('stop'))
                     [x,y,theta] = obj.state_estimate.unpack();
@@ -143,26 +146,6 @@ classdef QBSupervisor < simiam.controller.Supervisor
                 obj.switch_to_state('stop');
             elseif (obj.check_event('unsafe'))
                 obj.switch_to_state('avoid_obstacles');
-            elseif obj.check_event('obstacle_cleared')
-                obj.switch_to_state('go_to_goal')
-                
-            elseif obj.check_event('at_obstacle')
-                if obj.check_event('sliding_right')
-                    obj.set_progress_point();
-%                     obj.switch_to_state('follow_wall');
-                elseif obj.check_event('sliding_left')
-                    obj.set_progress_point();
-%                     obj.switch_to_state('follow_wall');
-                end
-%                 
-%             elseif obj.is_in_state('follow_wall')
-%                 if obj.check_event('progress_made')
-%                     if ~obj.slide_right() && ~obj.slide_left()
-%                         obj.switch_to_state('go_to_goal');
-%                     end
-%                 end
-%             else
-%                 obj.switch_to_state('go_to_goal');
             end
             
             %% END CODE BLOCK %%
@@ -197,12 +180,12 @@ classdef QBSupervisor < simiam.controller.Supervisor
             u_fw = obj.controllers{7}.u_fw;
                         
             %% START CODE BLOCK %%
-            sigma = inv([u_gtg, u_ao]) * u_fw;
+            sigma = [0;0];
             %% END CODE BLOCK %%
 
             rc = false;
             if sigma(1) > 0 && sigma(2) > 0
-                fprintf('now sliding left\n');
+%                 fprintf('now sliding left\n');
                 rc = true;
             end
         end
@@ -220,12 +203,12 @@ classdef QBSupervisor < simiam.controller.Supervisor
             u_fw = obj.controllers{7}.u_fw;
             
             %% START CODE BLOCK
-            sigma = inv([u_gtg, u_ao]) * u_fw;
+            sigma = [0;0];
             %% END CODE BLOCK
             
             rc = false;
             if sigma(1) > 0 && sigma(2) > 0
-                fprintf('now sliding right\n');
+%                 fprintf('now sliding right\n');
                 rc = true;
             end
         end
@@ -237,12 +220,11 @@ classdef QBSupervisor < simiam.controller.Supervisor
             rc = false;
             
             %% START CODE BLOCK %%
-            epsilon = 0.1;
-            d_prog = norm([x - obj.goal(1), y - obj.goal(2)]);
-            if d_prog < (obj.d_prog - epsilon)
+            
+            if (1+1==2)
                 rc = true;
             end
-            obj.set_progress_point();
+            
             %% END CODE BLOCK %%
             
         end
