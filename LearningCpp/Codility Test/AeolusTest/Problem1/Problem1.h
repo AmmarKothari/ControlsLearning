@@ -1,0 +1,3 @@
+
+
+int solution(char *S);

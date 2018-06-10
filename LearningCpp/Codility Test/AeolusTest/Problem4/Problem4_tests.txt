@@ -1,0 +1,15 @@
+1213
+Answer: 12
+100
+Answer: 1
+123
+Answer: 6
+1001
+Answer: 3
+0
+Answer: 1
+00000
+Answer: 1
+2000000000
+Answer: 1
+END
