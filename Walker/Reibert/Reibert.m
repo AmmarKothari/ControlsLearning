@@ -68,6 +68,7 @@ classdef Reibert
             obj.x_foot = obj.x-obj.l*[sin(obj.theta); cos(obj.theta)];
             obj.x_foot_all = [obj.x_foot_all; obj.x_foot];
             obj.x_all = [obj.x_all; obj.x'];
+            obj.u_all = [obj.u_all; u'];
         end
     end
 end
