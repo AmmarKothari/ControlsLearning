@@ -37,7 +37,7 @@ classdef ReibertDraw
         end
         
         function draw(obj,Reibert, Hdes)
-            body_angle = Reibert.theta;
+            body_angle = 0;
             x = Reibert.x(1);
             z = Reibert.x(2);
             foot_x = Reibert.x_foot(1);
@@ -46,6 +46,15 @@ classdef ReibertDraw
             body_length = 0.2;
             bdx = 0.5*body_length*cos( body_angle );
             bdz = 0.5*body_length*sin( body_angle );
+            if x > obj.max_x
+                obj.min_x = obj.min_x + x;
+                obj.max_x = obj.max_x + x;
+                set(obj.h_axes,'Xlim', [obj.min_x obj.max_x]);
+            elseif x < obj.min_x
+                obj.min_x = obj.min_x - x;
+                obj.max_x = obj.max_x - x;
+                set(obj.h_axes,'Xlim', [obj.min_x obj.max_x]);
+            end
 
             set(obj.body,'Parent',obj.h_axes,'Xdata',[x - bdx x + bdx], ...
             'Ydata',[z - bdz z + bdz],'visible','on');

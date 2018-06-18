@@ -1,0 +1,20 @@
+% to run simulation
+initdraw
+main
+
+% plot data
+figure(2)
+plot(array(1:max_i,1),array(1:max_i,2))
+
+plot(array(1:max_i,1),array(1:max_i,7))
+
+plot(array(1:max_i,1),array(1:max_i,6),'b', ...
+ array(1:max_i,1),array(1:max_i,8),'r')
+
+plot(array(1:max_i,1),array(1:max_i,9))
+
+% approximate dynamics
+body_angle is with respect to horizontal
+leg_angle is with respect to vertical
+I simplify the leg to have no mass but have a moment of inertia.
+
