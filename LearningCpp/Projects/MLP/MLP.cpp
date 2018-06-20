@@ -2,7 +2,15 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <math.h>
+
 #include "MLP.h"
+
+
+#define DEBUG1() cout<<"Debug 1"<<endl;
+#define DEBUG2() cout<<"Debug 2"<<endl;
+#define DEBUG3() cout<<"Debug 3"<<endl;
+#define DEBUG(X) cout<<"Debug "<<X<<endl;
 
 
 using namespace std;
@@ -55,18 +63,153 @@ void MLP::printLayers() {
 	}
 }
 
-void MLP::train(int iters, int batch_size, vector <vector<int> > &data) {
-	// if (batch_size > (int)data.size()){
-	// 	batch_size = data.size();
+
+float MLP::sigmoid(float x)
+{
+     float exp_value;
+     float return_value;
+
+     /*** Exponential calculation ***/
+     // cout << "Sigmoid In: " << x;
+     exp_value = exp((double) -x);
+
+     /*** Final sigmoid value ***/
+     return_value = 1.0 / (1.0 + exp_value);
+     // cout << "  Sigmoid Out: " << return_value << endl;
+     return return_value;
+}
+
+vector<float> MLP::add_bias_node(vector<float> &in_nodes){
+	vector<float> full_nodes = in_nodes;
+	full_nodes.push_back(bias_val);
+	return full_nodes;
+}
+
+vector<float> MLP::forward_1Layer(vector<float> &in_nodes, vector< vector<float> > &weights_in) {
+	// run forward through a single layer
+	// vector<float> sample(in_nodes.begin(), in_nodes.end());
+	// sample.push_back(bias_val); // add the bias unit
+	vector<float> sample;
+	sample = add_bias_node(in_nodes);
+	// cout << "Sample: ";
+	// for (auto const& s: sample) {
+	// 	cout << s << "  ";
 	// }
+	// cout << endl;
+	float node_val = 0; // forward prop node value
+	float squashed_node_val = 0; // flattened value
+	vector<float> NL; // Output Layer values
+	// DEBUG1();
+	for (auto const& W_row: weights_in) {
+		// weights_row * sample_col
+		int i_w = 0;
+		// cout << "Weights: ";
+			for (auto const& s: sample)  {
+				// move the sample forward through the network
+				// cout << W_row[i_w] << "   ";
+				node_val +=  W_row[i_w]*s;
+				i_w++;
+			}
+		squashed_node_val = sigmoid(node_val);
+		NL.push_back(squashed_node_val);
+		// cout << "Node Value: " << node_val << endl;
+		node_val = 0;
+		squashed_node_val = 0;
+	}
+	return NL;
+}
+
+
+vector<float> MLP::forward_1Layer(vector<int> &in_nodes, vector< vector<float> > &weights_in) {
+	// convert input to float and then run forward
+	vector<float> floatVec(in_nodes.begin(), in_nodes.end());
+	return forward_1Layer(floatVec, weights_in);
+}
+
+vector<int> MLP::classify_LastLayer(vector<float> &in_nodes) {
+	vector<int> out;
+	for (auto const& v: in_nodes){
+		if (v < 0.5) {
+			out.push_back(0);
+		} else {
+			out.push_back(1);
+		}
+	}
+	return out;
+}
+
+float MLP::loss(int &actual, float &pred_NL) {
+	float L;
+	// cout << pred_NL << " ";
+	// cout << log(pred_NL) << " ";
+	// cout << log(1.0 - pred_NL) << " ";
+	L = ( (float)actual - log(pred_NL) ) + ( (1.0 - (float)actual) * log(1.0 - pred_NL) );
+	// cout << L << endl;
+	L = max((float)-1e6, min((float)1e6, L));
+	return L;
+}
+
+void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<int> &results) {
+	if (batch_size > (int)data.size()){
+		batch_size = data.size();
+	}
 	cout << "Batch Size: " << batch_size << endl;
 	cout << "Iterations: " << iters << endl;
 	// cout << "Samples: " << data.size() << endl;
+	default_random_engine generator;
+	uniform_int_distribution<int> batch_sample_distribution(0,data.size());
 	// iteration loop
 	for (int it = 0; it<iters; it++) {
-		for (int ib = 0; ib<batch_size; ib++) {
-			cout << " "; // work on this section!
+		cout << "Iteration: " << it << endl;
+		/////////////////FORWARD//////////////////////
+		vector<float> dL_w2 (batch_size, 0);
+		float L = 0;
+		float delta_i = 0;
+		for (size_t ib = 0; ib<batch_size; ib++) {
+			int sample_idx;
+			sample_idx = batch_sample_distribution(generator) % batch_size;
+			vector<int> sample = data[sample_idx]; 
+			/* 
+			LAYER 1
+			*/
+			vector<float> NL1;
+			NL1 = forward_1Layer(sample, W1);
+
+
+			/* 
+			LAYER 2
+			*/
+			// cout << "Layer 2" << endl;
+			vector<float> NL2; // single value
+			NL2 = forward_1Layer(NL1, W2);
+			// cout << "NL: " << NL2[0] << endl;
+
+			/*
+			Classify
+			*/
+			vector<int> out;  // should be a single value
+			out = classify_LastLayer(NL2);
+
+			// Loss
+			L -= loss(results[sample_idx], NL2[0]);
+			cout << "Output: " << out[0] << ", Actual: " << results[sample_idx] << ", Loss: " << L << endl;
+
+			delta_i = results[sample_idx] - out[0];
+			vector<float> NL1B;
+			NL1B = add_bias_node(NL1);
+			for (size_t i_d=0; i_d < NL1B.size(); i_d++){
+			// for (auto const& n: NL1B) {
+				cout << i_d << " " << dL_w2[i_d] << endl;
+				 // << " " << dL_w2[i_d] << " " << delta_i << " " << n;
+				dL_w2[i_d] += delta_i*NL1B[i_d];
+				// DEBUG1();
+			}
 		}
+		del dL_w2;
+		cout << "End Batch: " << it << endl;
+		cout << endl;
+
+		/////////////////BACKWARD//////////////////////
 
 	}
 }

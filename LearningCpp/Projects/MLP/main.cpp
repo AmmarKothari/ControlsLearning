@@ -41,7 +41,7 @@ int main() {
 
 	MLP mlp(2, 10, 1);
 	mlp.printLayers();
-	mlp.train(10, 10, data);
+	mlp.train(10, 10, data, output);
 
 
 
