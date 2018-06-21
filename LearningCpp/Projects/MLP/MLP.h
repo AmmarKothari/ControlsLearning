@@ -1,7 +1,7 @@
 
 #include <vector>
-
-
+#include <string>
+#include <fstream>
 
 class MLP
 {
@@ -19,14 +19,17 @@ public:
 	std::vector<float> add_bias_node(std::vector<float> &);
 	std::vector<float> add_bias_node(std::vector<int> &);
 	void initializeMat(std::vector< std::vector<float> > &, int, int);
-	void printMatrix(std::vector< std::vector<float> > &);
-
+	void printMatrix(const std::vector< std::vector<float> > &);
+	void printMatrix(const std::vector<float> &);
+	void openCSVFile(std::ofstream &, std::string);
+	void closeCSVFile(std::ofstream &);
 
 	int input_dims_ct;
 	int hidden_nodes_ct;
 	int bias_val;
 	int output_dim_ct;
 	float learning_rate;
+	std::ofstream batch_recorder;
 	
 
 	std::vector< std::vector<float> > W1;

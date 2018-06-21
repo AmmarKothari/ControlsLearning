@@ -5,6 +5,8 @@
 #include <math.h>
 #include <sstream>
 #include <fstream>
+#include <string>
+#include <cstdlib>
 
 #include "MLP.h"
 
@@ -25,10 +27,10 @@ MLP::MLP(int input_dims_in, int hidden_nodes_in, int bias_in) {
 	float init_c = 1;
 	float init_spread = 2;
 
-	float learning_rate = 2.4;
+	learning_rate = 0.5;
 
 	// layers
-	default_random_engine generator;
+	default_random_engine generator(100);
 	uniform_real_distribution<float> distribution(init_c,init_spread);
 
 	// initialize layers with random values
@@ -63,18 +65,21 @@ void MLP::printLayers() {
 	// }
 }
 
-void MLP::printMatrix(vector< vector<float> > &mat_in) {
+void MLP::printMatrix(const vector< vector<float> > &mat_in) {
 	for (auto const& row: mat_in) {
-		for (auto const& col: row) {
-			cout << col << "  ";
-		}
-		cout << endl;
+		printMatrix(row);
 	}
 }
 
+void MLP::printMatrix(const vector<float> &vec_in) {
+	for (auto const& col: vec_in) {
+		cout << col << "  ";
+	}
+	cout << endl;
+}
 
-float MLP::sigmoid(float x)
-{
+
+float MLP::sigmoid(float x){
      float exp_value;
      float return_value;
 
@@ -90,7 +95,7 @@ float MLP::sigmoid(float x)
 
 vector<float> MLP::add_bias_node(vector<float> &in_nodes){
 	vector<float> full_nodes = in_nodes;
-	full_nodes.push_back(bias_val);
+	full_nodes.push_back((float)bias_val);
 	return full_nodes;
 }
 
@@ -175,12 +180,16 @@ void MLP::initializeMat(vector< vector<float> > & mat_in, int rows, int cols) {
 	}
 }
 
-void MLP::openCSVFile(string fn){
-	std::ofstream record_file;
+void MLP::openCSVFile(ofstream &record, string fn){
+	record.open(fn, ofstream::out);
+}
 
+void MLP::closeCSVFile(ofstream &record){
+	record.close();
 }
 
 void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<int> &results) {
+	string Folder = "Records/";
 	if (batch_size > (int)data.size()){
 		batch_size = data.size();
 	}
@@ -191,16 +200,25 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 	vector< vector<float> > dL_w2;
 	vector< vector<float> > dL_w1;
 	// iteration loop
+	stringstream overall_fn;
+	overall_fn << "Overall" << ".csv";
+	ofstream batch_recorder;
+	ofstream overall_recorder;
+	openCSVFile(overall_recorder, overall_fn.str());
+	printMatrix(W2);
 	for (int it = 0; it<iters; it++) {
 		cout << "Iteration: " << it << endl;
 		stringstream batch_fn;
-		batch_fn << "Batch_" << it << ".csv";
+		batch_fn << Folder << "Batch_" << it << ".csv";
+
+		
+		openCSVFile(batch_recorder, batch_fn.str());
+		
 		/////////////////FORWARD//////////////////////
 		dL_w2.clear();
 		initializeMat(dL_w2, hidden_nodes_ct+1, output_dim_ct);
 		dL_w1.clear();
 		initializeMat(dL_w1, hidden_nodes_ct, input_dims_ct+1);
-
 		float L = 0;
 		float delta_i = 0;
 		vector<float> NL1;
@@ -243,9 +261,14 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 			delta_i = (float) ((float)results[sample_idx] - NL2[0]);
 			NL1B.clear();
 			NL1B = add_bias_node(NL1);
+			if (isnan(NL1B[0])) {
+				cout << "Nan found" << endl;
+				exit(EXIT_FAILURE);
+			}
+			// 
 			// cout << delta_i << endl;
 			// DEBUG1();
-			for (size_t i_d=0; i_d < NL1B.size(); i_d++){
+			for (size_t i_d=0; i_d < dL_w2.size(); i_d++){
 				for (size_t i_w=0; i_w<dL_w2[i_d].size(); i_w++) {
 				// for (auto const& n: NL1B) {
 					// cout << i_d << " " << dL_w2[i_d][i_w] << "   ";
@@ -259,35 +282,53 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 			vector<float> sampleB;
 			sampleB = add_bias_node(sample);
 			for (size_t i_d = 0; i_d<NL1.size()-1; i_d++) { // each hidden node
+				float dNL1_dW = NL1[i_d]*(1-NL1[i_d]);
+				float dW2_dy = 0;
+				for (size_t i_w=0; i_w < W2[i_d].size(); i_w++) { // a column vector
+					dW2_dy += W2[i_d][i_w]*(results[sample_idx] - NL2[0]);
+				}
 				for (size_t i_s = 0; i_s<sample.size(); i_s++) { // each input
-					float dNL1_dW = NL1[i_d]*(1-NL1[i_d]);
-					float dW2_dy = 0;
-					for (size_t i_w=0; i_w < W2[i_d].size(); i_w++) { // a column vector
-						dW2_dy += W2[i_d][i_w]*(results[sample_idx] - NL2[0]);
-					}
-					for (size_t i_w=0; i_w<dL_w1[i_d].size(); i_d++) { // multiply by samples input to get weight matrix
-						dL_w1[i_d][i_w] += ( dNL1_dW * dW2_dy) * sampleB[i_d];
-					}
+					// for (size_t i_w=0; i_w<dL_w1[i_d].size(); i_d++) { // multiply by samples input to get weight matrix
+					// 	dL_w1[i_d][i_w] += ( dNL1_dW * dW2_dy) * sampleB[i_d];
+					// }
+					dL_w1[i_d][i_s] += ( dNL1_dW * dW2_dy) * sampleB[i_s];
 				}
 			}
+
+			// Write values to file
+			batch_recorder << results[sample_idx] << ", " << out[0] << endl;
 		}
+
+		///////////// WRITE results to CSV File/////////////
+		closeCSVFile(batch_recorder);
+		overall_recorder << it << ", " << (float)acc/(float)batch_size << endl;
+
 		/////////////////UPDATE STEP//////////////////////
 		for (size_t i_r = 0; i_r<W1.size(); i_r++) {
 			for (size_t i_c = 0; i_c<W1[i_r].size(); i_c++) {
-				W1[i_r][i_c] += learning_rate * dL_w1[i_r][i_c] / (input_dims_ct+1);
+				W1[i_r][i_c] += learning_rate * dL_w1[i_r][i_c] / (float)(batch_size);
 			}
 		}
 		for (size_t i_r = 0; i_r<W2.size(); i_r++) {
 			for (size_t i_c = 0; i_c<W2[i_r].size(); i_c++) {
-				W2[i_r][i_c] += learning_rate * dL_w2[i_r][i_c] / (input_dims_ct+1);
+				// cout << learning_rate * dL_w2[i_r][i_c] / (float)(input_dims_ct+1) << endl;
+				// cout << learning_rate << endl;
+				W2[i_r][i_c] += learning_rate * dL_w2[i_r][i_c] / (float)(batch_size);
+				// W2[i_r][i_c] += 0.00001;
 			}
 		}
+		// continue;
+		cout << "W1" << endl;
+		printMatrix(W1);
+		// cout << "W2" << endl;
+		// printMatrix(W2);
+		// cout << "dL_w2" << endl;
+		// printMatrix(dL_w2);
 		cout << "Accuracy: " << acc << ", Samples: " << batch_size << endl;
 		// del dL_w2;
 		cout << "End Batch: " << it << endl;
 		cout << endl;
 
-		///////////// WRITE results to CSV File/////////////
-
 	}
+	closeCSVFile(overall_recorder);
 }

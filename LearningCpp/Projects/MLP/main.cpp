@@ -5,7 +5,8 @@
 #include <vector>
 #include <iostream>
 #include "MLP.h"
-
+#include <fstream>
+#include <string>
 
 int main() {
 	
@@ -23,6 +24,7 @@ int main() {
 	}
 
 	// // And Data set
+	std::string fn = "And.csv";
 	for (auto const& i: data) {
 		if (i[0] + i[1] == 2) {
 			output.push_back(1);
@@ -31,6 +33,18 @@ int main() {
 			output.push_back(0);
 		}
 	}
+
+	std::ofstream dataset;
+	dataset.open(fn);
+	int c = 0;
+	for (auto const& row: data) {
+		for (auto const& i: row) {
+			dataset << i << ", ";
+		}
+		dataset << output[c] << std::endl;
+		c += 1;
+	}
+	dataset.close();
 
 	// print dataset
 	// int c = 0;
@@ -43,7 +57,7 @@ int main() {
 		// std::cout << "Run " << i << std::endl;
 		
 		// mlp.printLayers();
-		mlp.train(10000, 100, data, output);
+		mlp.train(500, 1000, data, output);
 	}
 
 
