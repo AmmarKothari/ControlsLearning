@@ -38,10 +38,12 @@ int main() {
 	// 	std::cout << "In: " << i[0] << ", " << i[1] << " \t Out: " << output[c] << std::endl;
 	// 	c++;
 	// }
-	for (i = 0; i < 10; i++) {
-		MLP mlp(2, 10, 1);
-		mlp.printLayers();
-		mlp.train(10, 10, data, output);
+	MLP mlp(2, 10, 1);
+	for (int i = 0; i < 1; i++) {
+		// std::cout << "Run " << i << std::endl;
+		
+		// mlp.printLayers();
+		mlp.train(10000, 100, data, output);
 	}
 
 

@@ -3,6 +3,8 @@
 #include <random>
 #include <vector>
 #include <math.h>
+#include <sstream>
+#include <fstream>
 
 #include "MLP.h"
 
@@ -22,6 +24,8 @@ MLP::MLP(int input_dims_in, int hidden_nodes_in, int bias_in) {
 
 	float init_c = 1;
 	float init_spread = 2;
+
+	float learning_rate = 2.4;
 
 	// layers
 	default_random_engine generator;
@@ -171,6 +175,11 @@ void MLP::initializeMat(vector< vector<float> > & mat_in, int rows, int cols) {
 	}
 }
 
+void MLP::openCSVFile(string fn){
+	std::ofstream record_file;
+
+}
+
 void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<int> &results) {
 	if (batch_size > (int)data.size()){
 		batch_size = data.size();
@@ -179,16 +188,25 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 	cout << "Iterations: " << iters << endl;
 	// cout << "Samples: " << data.size() << endl;
 	default_random_engine generator;
+	vector< vector<float> > dL_w2;
+	vector< vector<float> > dL_w1;
 	// iteration loop
 	for (int it = 0; it<iters; it++) {
 		cout << "Iteration: " << it << endl;
+		stringstream batch_fn;
+		batch_fn << "Batch_" << it << ".csv";
 		/////////////////FORWARD//////////////////////
-		vector< vector<float> > dL_w2;
-		// initializeMat(dL_w2, hidden_nodes_ct, output_dim_ct);
-		initializeMat(dL_w2, 10, 10);
-		// vector<float> dL_w1;
+		dL_w2.clear();
+		initializeMat(dL_w2, hidden_nodes_ct+1, output_dim_ct);
+		dL_w1.clear();
+		initializeMat(dL_w1, hidden_nodes_ct, input_dims_ct+1);
+
 		float L = 0;
 		float delta_i = 0;
+		vector<float> NL1;
+		vector<float> NL1B;
+		vector<float> NL2; // single value
+		int acc = 0; // number of correct preditions
 		for (size_t ib = 0; ib<batch_size; ib++) {
 			int sample_idx;
 			uniform_int_distribution<int> batch_sample_distribution(0,data.size());
@@ -197,14 +215,14 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 			/* 
 			LAYER 1
 			*/
-			vector<float> NL1;
+			NL1.clear();
 			NL1 = forward_1Layer(sample, W1);
 
 			/* 
 			LAYER 2
 			*/
 			// cout << "Layer 2" << endl;
-			vector<float> NL2; // single value
+			NL2.clear();
 			NL2 = forward_1Layer(NL1, W2);
 			// cout << "NL: " << NL2[0] << endl;
 
@@ -214,39 +232,62 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 			vector<int> out;  // should be a single value
 			out = classify_LastLayer(NL2);
 
+			if (out[0] == results[sample_idx]) {
+				acc++;
+			}
+
 			// Loss
 			L -= loss(results[sample_idx], NL2[0]);
-			cout << "Output: " << out[0] << ", Actual: " << results[sample_idx] << ", Loss: " << L << endl;
+			// cout << "Output: " << out[0] << ", Actual: " << results[sample_idx] << ", Loss: " << L << endl;
 
-			delta_i = results[sample_idx] - out[0];
-			vector<float> NL1B;
+			delta_i = (float) ((float)results[sample_idx] - NL2[0]);
+			NL1B.clear();
 			NL1B = add_bias_node(NL1);
+			// cout << delta_i << endl;
+			// DEBUG1();
 			for (size_t i_d=0; i_d < NL1B.size(); i_d++){
 				for (size_t i_w=0; i_w<dL_w2[i_d].size(); i_w++) {
 				// for (auto const& n: NL1B) {
-					// cout << i_d << " " << dL_w2[i_d][i_w];
+					// cout << i_d << " " << dL_w2[i_d][i_w] << "   ";
 					 // << " " << dL_w2[i_d] << " " << delta_i << " " << n;
 					dL_w2[i_d][i_w] += delta_i*NL1B[i_d];
+					// cout << dL_w2[i_d][i_w] << endl;
 					// DEBUG1();
 				}
 			}
-			// printMatrix(dL_w2);
+			/////////////////BACKWARD//////////////////////
 			vector<float> sampleB;
 			sampleB = add_bias_node(sample);
-			for (size_t i_d = 0; i_d<NL1.size()-1; i_d++) {
-				float dNL1_dW = NL1[i_d]*(1-NL1[i_d]);
-			// 	float dW2_dy = 0;
-			// 	for (size_t i_w=0; i_w < W2[i_d].size(); i_w++) {
-			// 		dW2_dy += W2[i_d][i_w]*(results[sample_idx] - NL2[0]);
-				// }
-			// 	dL_w1[i_d] += ( dNL1_dW * dW2_dy) * x_b(i1,:);
+			for (size_t i_d = 0; i_d<NL1.size()-1; i_d++) { // each hidden node
+				for (size_t i_s = 0; i_s<sample.size(); i_s++) { // each input
+					float dNL1_dW = NL1[i_d]*(1-NL1[i_d]);
+					float dW2_dy = 0;
+					for (size_t i_w=0; i_w < W2[i_d].size(); i_w++) { // a column vector
+						dW2_dy += W2[i_d][i_w]*(results[sample_idx] - NL2[0]);
+					}
+					for (size_t i_w=0; i_w<dL_w1[i_d].size(); i_d++) { // multiply by samples input to get weight matrix
+						dL_w1[i_d][i_w] += ( dNL1_dW * dW2_dy) * sampleB[i_d];
+					}
+				}
 			}
 		}
+		/////////////////UPDATE STEP//////////////////////
+		for (size_t i_r = 0; i_r<W1.size(); i_r++) {
+			for (size_t i_c = 0; i_c<W1[i_r].size(); i_c++) {
+				W1[i_r][i_c] += learning_rate * dL_w1[i_r][i_c] / (input_dims_ct+1);
+			}
+		}
+		for (size_t i_r = 0; i_r<W2.size(); i_r++) {
+			for (size_t i_c = 0; i_c<W2[i_r].size(); i_c++) {
+				W2[i_r][i_c] += learning_rate * dL_w2[i_r][i_c] / (input_dims_ct+1);
+			}
+		}
+		cout << "Accuracy: " << acc << ", Samples: " << batch_size << endl;
 		// del dL_w2;
 		cout << "End Batch: " << it << endl;
 		cout << endl;
 
-		/////////////////BACKWARD//////////////////////
+		///////////// WRITE results to CSV File/////////////
 
 	}
 }

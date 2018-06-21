@@ -26,6 +26,7 @@ public:
 	int hidden_nodes_ct;
 	int bias_val;
 	int output_dim_ct;
+	float learning_rate;
 	
 
 	std::vector< std::vector<float> > W1;
