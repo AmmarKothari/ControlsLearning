@@ -17,6 +17,10 @@ public:
 	std::vector<int> classify_LastLayer(std::vector<float> &);
 	float loss(int &, float &);
 	std::vector<float> add_bias_node(std::vector<float> &);
+	std::vector<float> add_bias_node(std::vector<int> &);
+	void initializeMat(std::vector< std::vector<float> > &, int, int);
+	void printMatrix(std::vector< std::vector<float> > &);
+
 
 	int input_dims_ct;
 	int hidden_nodes_ct;

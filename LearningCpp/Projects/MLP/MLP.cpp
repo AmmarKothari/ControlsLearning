@@ -48,16 +48,21 @@ MLP::MLP(int input_dims_in, int hidden_nodes_in, int bias_in) {
 
 void MLP::printLayers() {
 	cout << "W1" << endl;
-	for (int i1 = 0; i1 < hidden_nodes_ct; i1++) {
-		for (int i2 = 0; i2 < input_dims_ct+1; i2++) {
-			cout << W1[i1][i2] << "  ";
-		}
-		cout << endl;
-	}
+	printMatrix(W1);
 	cout << "W2" << endl;
-	for (int i1 = 0; i1 < hidden_nodes_ct+1; i1++) {
-		for (int i2 = 0; i2 < output_dim_ct; i2++) {
-			cout << W2[i1][i2] << "  ";
+	printMatrix(W2);
+	// for (int i1 = 0; i1 < hidden_nodes_ct+1; i1++) {
+	// 	for (int i2 = 0; i2 < output_dim_ct; i2++) {
+	// 		cout << W2[i1][i2] << "  ";
+	// 	}
+	// 	cout << endl;
+	// }
+}
+
+void MLP::printMatrix(vector< vector<float> > &mat_in) {
+	for (auto const& row: mat_in) {
+		for (auto const& col: row) {
+			cout << col << "  ";
 		}
 		cout << endl;
 	}
@@ -83,6 +88,12 @@ vector<float> MLP::add_bias_node(vector<float> &in_nodes){
 	vector<float> full_nodes = in_nodes;
 	full_nodes.push_back(bias_val);
 	return full_nodes;
+}
+
+
+vector<float> MLP::add_bias_node(vector<int> &in_nodes){
+	vector<float> floatVec(in_nodes.begin(), in_nodes.end());
+	return add_bias_node(floatVec);
 }
 
 vector<float> MLP::forward_1Layer(vector<float> &in_nodes, vector< vector<float> > &weights_in) {
@@ -149,6 +160,17 @@ float MLP::loss(int &actual, float &pred_NL) {
 	return L;
 }
 
+void MLP::initializeMat(vector< vector<float> > & mat_in, int rows, int cols) {
+	vector<float> temp;
+	for (size_t i1 = 0; i1 < rows; i1++) {
+		temp.clear();
+		for (size_t i2 = 0; i2 < cols; i2++) {
+			temp.push_back(0);
+		}
+		mat_in.push_back(temp);
+	}
+}
+
 void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<int> &results) {
 	if (batch_size > (int)data.size()){
 		batch_size = data.size();
@@ -157,24 +179,26 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 	cout << "Iterations: " << iters << endl;
 	// cout << "Samples: " << data.size() << endl;
 	default_random_engine generator;
-	uniform_int_distribution<int> batch_sample_distribution(0,data.size());
 	// iteration loop
 	for (int it = 0; it<iters; it++) {
 		cout << "Iteration: " << it << endl;
 		/////////////////FORWARD//////////////////////
-		vector<float> dL_w2 (batch_size, 0);
+		vector< vector<float> > dL_w2;
+		// initializeMat(dL_w2, hidden_nodes_ct, output_dim_ct);
+		initializeMat(dL_w2, 10, 10);
+		// vector<float> dL_w1;
 		float L = 0;
 		float delta_i = 0;
 		for (size_t ib = 0; ib<batch_size; ib++) {
 			int sample_idx;
-			sample_idx = batch_sample_distribution(generator) % batch_size;
+			uniform_int_distribution<int> batch_sample_distribution(0,data.size());
+			sample_idx = batch_sample_distribution(generator);
 			vector<int> sample = data[sample_idx]; 
 			/* 
 			LAYER 1
 			*/
 			vector<float> NL1;
 			NL1 = forward_1Layer(sample, W1);
-
 
 			/* 
 			LAYER 2
@@ -198,14 +222,27 @@ void MLP::train(int iters, int batch_size, vector <vector<int> > &data, vector<i
 			vector<float> NL1B;
 			NL1B = add_bias_node(NL1);
 			for (size_t i_d=0; i_d < NL1B.size(); i_d++){
-			// for (auto const& n: NL1B) {
-				cout << i_d << " " << dL_w2[i_d] << endl;
-				 // << " " << dL_w2[i_d] << " " << delta_i << " " << n;
-				dL_w2[i_d] += delta_i*NL1B[i_d];
-				// DEBUG1();
+				for (size_t i_w=0; i_w<dL_w2[i_d].size(); i_w++) {
+				// for (auto const& n: NL1B) {
+					// cout << i_d << " " << dL_w2[i_d][i_w];
+					 // << " " << dL_w2[i_d] << " " << delta_i << " " << n;
+					dL_w2[i_d][i_w] += delta_i*NL1B[i_d];
+					// DEBUG1();
+				}
+			}
+			// printMatrix(dL_w2);
+			vector<float> sampleB;
+			sampleB = add_bias_node(sample);
+			for (size_t i_d = 0; i_d<NL1.size()-1; i_d++) {
+				float dNL1_dW = NL1[i_d]*(1-NL1[i_d]);
+			// 	float dW2_dy = 0;
+			// 	for (size_t i_w=0; i_w < W2[i_d].size(); i_w++) {
+			// 		dW2_dy += W2[i_d][i_w]*(results[sample_idx] - NL2[0]);
+				// }
+			// 	dL_w1[i_d] += ( dNL1_dW * dW2_dy) * x_b(i1,:);
 			}
 		}
-		del dL_w2;
+		// del dL_w2;
 		cout << "End Batch: " << it << endl;
 		cout << endl;
 
