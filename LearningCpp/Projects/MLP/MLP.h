@@ -3,6 +3,8 @@
 #include <string>
 #include <fstream>
 
+#define vec_float std::vector<float>
+#define matrix_float std::vector< vec_float >
 class MLP
 {
 public:
@@ -10,17 +12,34 @@ public:
 	// ~MLP();
 	void printLayers();
 	void train(int, int, std::vector <std::vector<int> > &, std::vector<int> &);
-	// void train(int, int, std::vector <std::vector<float> > &);
+	// void train(int, int, std::vector <vec_float > &);
 	float sigmoid(float);
-	std::vector<float> forward_1Layer(std::vector<float> &, std::vector< std::vector<float> > &);
-	std::vector<float> forward_1Layer(std::vector<int> &, std::vector< std::vector<float> > &);
-	std::vector<int> classify_LastLayer(std::vector<float> &);
+	matrix_float sigmoid(matrix_float &);
+	vec_float sigmoid(vec_float &);
+	matrix_float transpose(matrix_float &);
+	matrix_float transpose(vec_float &);
+	matrix_float matmul(matrix_float &, matrix_float &);
+	matrix_float matmul(float &, vec_float &);
+	matrix_float matmul(float &, matrix_float &);
+	matrix_float matmul(matrix_float &, vec_float &);
+	matrix_float elementwiseMul(matrix_float &, matrix_float &);
+	matrix_float elementwiseMul(vec_float &, matrix_float &);
+	matrix_float elementwiseMul(matrix_float &, vec_float &);
+	void matAdd(matrix_float &, matrix_float &, matrix_float &);
+	matrix_float addDimension(vec_float &);
+	vec_float removeDimension(matrix_float &);
+	vec_float forward_1Layer(vec_float &, matrix_float &);
+	vec_float forward_1Layer(std::vector<int> &, matrix_float &);
+	std::vector<int> classify_LastLayer(vec_float &);
 	float loss(int &, float &);
-	std::vector<float> add_bias_node(std::vector<float> &);
-	std::vector<float> add_bias_node(std::vector<int> &);
-	void initializeMat(std::vector< std::vector<float> > &, int, int);
-	void printMatrix(const std::vector< std::vector<float> > &);
-	void printMatrix(const std::vector<float> &);
+	vec_float add_bias_node(vec_float &);
+	vec_float add_bias_node(std::vector<int> &);
+	matrix_float removeBiasWeights(matrix_float &mat_in);
+	void initializeMat(matrix_float &, int, int);
+	void initializeMatRandom(matrix_float &, int , int );
+	void printMatrix(const matrix_float &);
+	void printMatrix(const vec_float &);
+	void printMatrix(const std::vector<int> &);
 	void openCSVFile(std::ofstream &, std::string);
 	void closeCSVFile(std::ofstream &);
 
@@ -32,10 +51,8 @@ public:
 	std::ofstream batch_recorder;
 	
 
-	std::vector< std::vector<float> > W1;
-	std::vector< std::vector<float> > W2;
-	 // W1[hidden_nodes_ct][input_dims_ct+1];
-	// float W2[hidden_nodes_ct+1][1];
+	matrix_float W1;
+	matrix_float W2;
 
 private:
 };

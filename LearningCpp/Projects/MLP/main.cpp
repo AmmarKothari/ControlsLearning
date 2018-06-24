@@ -57,8 +57,10 @@ int main() {
 		// std::cout << "Run " << i << std::endl;
 		
 		// mlp.printLayers();
-		mlp.train(500, 1000, data, output);
+		mlp.train(150, 1000, data, output);
+		// mlp.train(5000, 10, data, output);
 	}
+	mlp.printLayers();
 
 
 

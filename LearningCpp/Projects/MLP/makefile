@@ -3,7 +3,9 @@ CFLAGS=-c -Wall
 CXXFLAGS=-std=c++11 -Wall -pedantic
 
 
-all: main
+all: main test_sigmoid
+
+test_sigmoid: test_sigmoid.cpp MLP.o
 
 main: main.cpp MLP.o
 
