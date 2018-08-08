@@ -1,10 +1,13 @@
 from waypoint import Waypoint
+from path_visualizer import PathVisualizer
 import pdb
 import Queue
 import numpy as np
 
 
 ########## FIX NAMING CONVENTION!!! #########
+
+DEBUG = True
 
 class Node(object):
     # object to represent each node on search graph
@@ -19,56 +22,51 @@ class Node(object):
     def __cmp__(self, other):
         return cmp(self.cost, other.cost)
 
-def get_neighbors(curNode, obstacleGrid):
-    """
-    Return a list of neighbors as indexes that are accesible from current state
+def get_neighbors(curWP, grid):
+    '''
+    Return a list of neighbors to current state as Waypoints based on size of grid, movement model, and obstacles
 
-    :param curNode: the current node as an index
+    :param curWP: Waypoint of the current state
     :param grid: Grid is a 2D numpy ndarray of boolean values. grid[x, y] == True if the cell contains an obstacle.
         The grid dimensions are exposed via grid.shape
 
-    :rtype: A list of ints which represent the neighbors
-    """
+    :rtype: A list of Waypoints that represent neibhbors
 
-def get_neighbors(curWP, grid):
+    Notes:
     # could do this through a set of transformation matrices, but that seems like overkill
-    # should original node be in there?
+    '''
     if curWP.orientation == 0:
         actions = np.array(
                 [   [0,1,0],
+                    [0,-1,0],
                     [1,1,1],
                     [-1,1,-1],
-                    [0,-1,0],
                     [-1,-1,1],
-                    [1,-1,-1],
-                    [0, 0, 0], ])
+                    [1,-1,-1] ])
     elif curWP.orientation == 1:
         actions = np.array(
                 [   [1,0,0],
+                    [-1,0,0],
                     [1,-1,1],
                     [1,1,-1],
-                    [-1,0,0],
                     [-1,1,1],
-                    [-1,-1,-1],
-                    [0, 0, 0] ])
+                    [-1,-1,-1] ])
     elif curWP.orientation == 2:
         actions = np.array(
                 [   [0,-1,0],
+                    [0,1,0],
                     [-1,-1,1],
                     [1,-1,-1],
-                    [0,1,0],
                     [1,1,1],
-                    [-1,1,-1],
-                    [0, 0, 0] ])
+                    [-1,1,-1] ])
     elif curWP.orientation == 3:
         actions = np.array(
                 [   [-1,0,0],
+                    [1,0,0],
                     [-1,1,1],
                     [-1,-1,-1],
-                    [1,0,0],
                     [1,-1,1],
-                    [1,1,-1],
-                    [0, 0, 0] ])
+                    [1,1,-1] ])
     else:
         throw("Orientation Error")
 
@@ -79,48 +77,84 @@ def get_neighbors(curWP, grid):
     for n in possible_neighbors:
         if n[0] < 0 or n[1] < 0 or n[0] >= width or n[1] >= height:
             continue #outside of map
-        if not grid[n[0], n[1]]:
+        if not grid[n[0], n[1]]: #obstacles
             neighbors.append(Waypoint(n[0], n[1], n[2]))
 
     return neighbors
 
     
 def hueristic(wp, end_wp):
-    # heuristic estimate for distance to goal
-    # largest distance along x and y direction
-    # heuristic can be improved to be closer to actual distance that Anne can travel
+    '''
+    Returns an heuristic estimate of the distance from the current state to the goal state
+
+    :param wp: Waypoint to estimate distance to goal
+    :param end_wp: Waypoint for ending state of estiamte
+
+    :rtype: estimate of distance between Waypoints
+
+    Notes:
+    Heuristic calculates distance in two parts: minimum travel distance since can move diagonal,
+     and a cost for different orientations to prioritize expanding moves that don't change 
+     orientation over other options
+    '''
     dx = abs(end_wp.tuple[0] - wp.tuple[0])
     dy = abs(end_wp.tuple[1] - wp.tuple[1])
-    # dtheta = end_wp.tuple[2] - wp.tuple[2]
-    return max(dx, dy)
+    dtheta = abs(end_wp.tuple[2] - wp.tuple[2])
+    # h = max(dx, dy) # paths have a lot of flare
+    # h = abs(dx - dy) + min(dx,dy)
+    h = max(dx,dy) + dtheta
+    return h
 
 
-def in_queue(node, q):
+def in_queue(wp, q):
+    '''
+    Returns whether Waypoint is in queue
+
+    :param wp: Waypoint to check
+    :param q: queue that contains nodes as (cost, Waypoint)
+
+    :rtype: boolean that is True if node is in queue
+
+    Notes:
+    a custom node class may make this function uncessary and can use built it PriorityQueue functionality    
+    '''
+
     with q.mutex:
-        return (node in q.queue)
+        for cost, q_wp in q.queue:
+            if q_wp == wp:
+                return True
+        return False
 
-def extract_path(costFromStart, start_wp, end_wp, grid):
-    pdb.set_trace()
+# def extract_path(costFromStart, start_wp, end_wp, grid):
+#     path = [start_wp]
+#     while True:
+#         curWP = path[-1]
+#         # get neighbors
+#         neighbors = get_neighbors(curWP, grid)
+#         # choose the neighbor with the lowest cost
+#         min_cost = 1e4
+#         best_neighbor = None
+#         for n in neighbors:
+#             if min_cost > costFromStart[n.tuple]:
+#                 min_cost = costFromStart[n.tuple]
+#                 best_neighbor = n
+                
+#         # update path
+#         if best_neighbor is None:
+#             throw("No neighbors visitied")
+#         if DEBUG: print("Best Neighbor: {}, Cost: {}".format(best_neighbor, min_cost) )
+#         path.append(best_neighbor)
+#         # continue until goal is reached
+#         if best_neighbor == end_wp:
+#             break
+#     return path
+
+def extract_path(previousBest, start_wp):
     path = [start_wp]
     while True:
-        curWP = path[-1]
-        # get neighbors
-        neighbors = get_neighbors(curWP, grid)
-        # choose the neighbor with the lowest cost
-        min_cost = 1e4
-        best_neighbor = None
-        for n in neighbors[:-1]:
-            if min_cost > costFromStart[n.tuple]:
-                min_cost = costFromStart[n.tuple]
-                best_neighbor = n
-                
-        # update path
-        if best_neighbor is None:
-            pdb.set_trace()
-        print("Best Neighbor: {}, Cost: {}".format(best_neighbor, min_cost) )
-        path.append(best_neighbor)
-        # continue until goal is reached
-        if best_neighbor == end_wp:
+        try:
+            path.append(previousBest[path[-1]])
+        except:
             break
     return path
 
@@ -141,8 +175,6 @@ class PathFinder(object):
         More documentation at
         https://docs.google.com/document/d/1b30L2LeKyMjO5rBeCui38j_HSUYgEGWXrwSRjB7AnYs/edit?usp=sharing
         """
-        print "EDIT HERE"
-
         numStates = grid.size * 4
         mapShape = [grid.shape[0], grid.shape[1], 4]
         costFromStart = np.full(mapShape, 1e5)
@@ -159,17 +191,15 @@ class PathFinder(object):
 
         while not openSet.empty():
 
-            __, curWP = openSet.get()
+            __, curWP = openSet.get(False)
             curCost = costFromStart[curWP.tuple]
-            print(curWP)
+            if DEBUG: print(curWP)
             closedSet.add(curWP) # hueristic is monotonically increasing so don't need to revisit nodes
-            # if curWP == start_wp:
-            #     pdb.set_trace()
-            #     path = extract_path(costFromStart, start_wp, end_wp, grid)
-            #     break
+            if curWP == start_wp:
+                break
             neighbors = get_neighbors(curWP, grid)
             
-            for n in neighbors[:-1]:
+            for n in neighbors:
                 if n in closedSet:
                     # print("Already explored")
                     continue # don't need to do anything
@@ -178,8 +208,11 @@ class PathFinder(object):
                 curCostHeuristic = hueristic(n, start_wp)
                 curTotalCost = curCostFromStart + curCostHeuristic
                 
-                if not in_queue((costFromStart[n.tuple], n), openSet):
-                    openSet.put( (curTotalCost, n) )
+                if not in_queue(n, openSet):
+                    if openSet.full():
+                        pdb.set_trace()
+                    openSet.put( (curTotalCost, n), False )
+
                 elif (curCostFromStart >= costFromStart[n.tuple]):
                     continue # not better than current path
                 previousBest[n] = curWP
@@ -187,18 +220,48 @@ class PathFinder(object):
                 costFromStart[n.tuple] = curCostFromStart
                 costTotal[n.tuple] = curCostHeuristic + curCostFromStart
 
-
-
-        path = extract_path(costFromStart, start_wp, end_wp, grid)
-        pdb.set_trace()
+        # path = extract_path(costFromStart, start_wp, end_wp, grid)
+        path = extract_path(previousBest, start_wp)
         return path
-        # return [start_wp, Waypoint(5, 6, 0), Waypoint(5, 7, 0), end_wp]
 
-
-if __name__ == '__main__':
+def smallGridTest():
     grid = np.zeros((3, 3)).astype(np.bool)
     queries = [
         [Waypoint(2, 0, 2), Waypoint(0, 2, 1)],
     ]
+    return (grid, queries)
+
+def test_no_obstacles_straight_line():
+    grid = np.zeros((20, 20)).astype(np.bool)
+    queries = [
+        [Waypoint(5, 5, 0), Waypoint(5, 8, 0)],
+        [Waypoint(16, 5, 1), Waypoint(8, 5, 1)],
+        [Waypoint(5, 15, 3), Waypoint(16, 15, 3)],
+    ]
+    return (grid, queries)
+
+
+
+def test_with_multiple_obstacles():
+    grid = np.zeros((20, 20)).astype(np.bool)
+
+    grid[3:4, 0:15] = True
+    grid[13:14, 5:20] = True
+
+    queries = [
+        [Waypoint(0, 0, 0), Waypoint(19, 19, 3)]
+    ]
+    return (grid, queries)
+
+if __name__ == '__main__':
+    grid, queries = test_no_obstacles_straight_line()
     P = PathFinder()
-    P.get_path(grid, queries[0][0], queries[0][1])
+    V = PathVisualizer()
+    for q in queries:
+        path = P.get_path(grid, q[0], q[1])
+
+        print(path)
+
+
+    
+
