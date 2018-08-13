@@ -1,6 +1,4 @@
 from waypoint import Waypoint
-from path_visualizer import PathVisualizer
-import pdb
 import Queue
 import numpy as np
 
@@ -97,7 +95,6 @@ def get_hueristic(wp, end_wp):
     '''
     dx = abs(end_wp.tuple[0] - wp.tuple[0])
     dy = abs(end_wp.tuple[1] - wp.tuple[1])
-    dtheta = abs(end_wp.tuple[2] - wp.tuple[2])
     h = max(dx,dy)
     return h
 
@@ -152,7 +149,7 @@ class PathFinder(object):
         A* starting from the goal and working back towards the start is implemented
         
 
-    ***************************** BIG O NOTATION ESTIMATE *********************
+        ***************************** BIG O NOTATION ESTIMATE *********************
         Time Complexity of the algorithm is dominated by the number of nodes exapanded.
         For this part, the complexity is O(6^n) worst case where n is max(width, height) of map
         Based on some testing, the branching factor is closer to 1.2 in cases without an obstacle which makes the complexity O(1.2^n) where n is same as above
@@ -184,12 +181,8 @@ class PathFinder(object):
         cost_total[end_wp.tuple] = cost_heuristic[end_wp.tuple]
         open_set.put( (cost_heuristic[end_wp.tuple], end_wp) ) # search from endpoint and work towards start point
 
-        # nodes_expanded = 0
-        max_open_states = 0
         while not open_set.empty():
-            # nodes_expanded += 1
-            max_open_states = max(open_set.qsize(), max_open_states)
-            __, curWP = open_set.get(False)    # O(logn)
+            __, curWP = open_set.get(False)
             cur_cost = cost_from_start[curWP.tuple]
             if DEBUG: print(curWP)
             closed_set.add(curWP) # hueristic is monotonically increasing so don't need to revisit nodes
@@ -217,85 +210,8 @@ class PathFinder(object):
                 cost_from_start[n.tuple] = cur_cost_from_start
                 cost_total[n.tuple] = cur_cost_heuristic + cur_cost_from_start
 
-        # path = extract_path(cost_from_start, start_wp, end_wp, grid)
         path = extract_path(previous_best, start_wp)
-        # print("Nodes Expanded {}".format(nodes_expanded))
-        print("Max number of open states: {}".format(max_open_states))
         if path[-1] != end_wp:
             raise Exception("Path not found!")
-        # what to return if start and end are the same: nothing, or Waypoint for start/end state?
-        return path
-
-def smallGridTest():
-    grid = np.zeros((3, 3)).astype(np.bool)
-    queries = [
-        [Waypoint(2, 0, 2), Waypoint(0, 2, 1)],
-        [Waypoint(2, 0, 2), Waypoint(2, 0, 2)],
-    ]
-    return (grid, queries)
-
-def test_no_obstacles_straight_line():
-    grid = np.zeros((20, 20)).astype(np.bool)
-    queries = [
-        [Waypoint(5, 5, 0), Waypoint(5, 8, 0)],
-        [Waypoint(16, 5, 1), Waypoint(8, 5, 1)],
-        [Waypoint(5, 15, 3), Waypoint(16, 15, 3)],
-    ]
-    return (grid, queries)
-
-def test_no_obstacles_with_turns():
-    grid = np.zeros((20, 20)).astype(np.bool)
-    queries = [
-        # [Waypoint(5, 7, 0), Waypoint(15, 8, 3)],
-        # [Waypoint(16, 5, 2), Waypoint(8, 5, 1)],
-        # [Waypoint(15, 15, 1), Waypoint(16, 15, 3)],
-        [Waypoint(0,0,0), Waypoint(19,19,3)]
-    ]
-    return (grid, queries)
-
-
-
-def test_with_multiple_obstacles():
-    grid = np.zeros((20, 20)).astype(np.bool)
-
-    grid[3:4, 0:15] = True
-    grid[13:14, 5:20] = True
-
-    queries = [
-        [Waypoint(0, 0, 0), Waypoint(19, 19, 3)]
-    ]
-    return (grid, queries)
-
-def test_with_U_obstacles():
-    grid = np.zeros((20, 20)).astype(np.bool)
-
-    grid[19, 10:19] = True
-    grid[15:19, 18] = True
-    grid[15, 10:18] = True
-
-    queries = [
-        [Waypoint(19, 0, 0), Waypoint(19, 19, 3)]
-    ]
-    return (grid, queries)
-
-def test_no_solution():
-    grid = np.zeros((20,20)).astype(np.bool)
-    grid[10, :] = True
-
-    queries = [
-    [Waypoint(0,0,0), Waypoint(19,19,0)]
-    ]
-    return (grid, queries)
-
-if __name__ == '__main__':
-    grid, queries = test_no_obstacles_with_turns()
-    P = PathFinder()
-    V = PathVisualizer()
-    for q in queries:
-        path = P.get_path(grid, q[0], q[1])
-        PathVisualizer.viz_path(grid, q, path)
-        print(path)
-
-
-    
+        return path    
 
