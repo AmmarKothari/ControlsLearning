@@ -6,7 +6,7 @@ Y1 = @(theta1) -l1*cos(theta1);
 X2 = @(theta1, theta2) X1(theta1) + l2 * sin(theta1 + theta2);
 Y2 = @(theta1, theta2) Y1(theta1) - l2 * cos(theta1 + theta2);
 
-figure(1); hold on;
+figure(1); clf; hold on;
 l12 = l1 + l2;
 xlim([-l12, l12]);
 ylim([-l12, l12]);
@@ -32,6 +32,9 @@ for i = 1:length(t)
     l2.XData = [x1, x2]; l2.YData = [y1, y2];
     path.XData = [path.XData, x2]; path.YData = [path.YData, y2];
     drawnow
+    pause(0.01)
 end
+
+text(0,0, 'DONE');
 
 end

@@ -1,0 +1,36 @@
+% http://users.auth.gr/lazarosm/double-inverted-pendlum-laguerre-moysis.pdf
+PendulumSetup_1;
+upright = true;
+
+if upright
+    A = A_linearized(0,0,b1,b2,g,l1,l2,m1,m2,pi,0,0,0);
+    B = B_linearized(l1,l2,m1,m2,0);
+else
+    A = A_linearized(0,0,b1,b2,g,l1,l2,m1,m2,0,0,0,0);
+    B = B_linearized(l1,l2,m1,m2,0);
+end
+
+Q = eye(4,4);
+R = eye(2,2);
+
+K = lqr(A,B, Q, R);
+
+x = [pi*1.01, 0, 0, 0]';
+t = 0:0.1:10;
+t_last = 0;
+X = zeros(length(t), length(x));
+for i = 1:length(t)
+    dt = t(i) - t_last;
+    X(i, :) = x;
+    
+    % determine control input
+    U = K*x;
+    
+    % step system forward
+    x_d = DoublePendulum_Dynamics(U(1), U(2),b1,b2,g,l1,l2,m1,m2, x(1), x(2), x(3), x(4));
+    x = x + [x(2); x_d(1); x(4); x_d(2)*dt;
+end
+    
+    
+    
+
