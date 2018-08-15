@@ -8,13 +8,13 @@ if upright
 else
     x0 = [0; 0; 0; 0];
 end
-A = A_linearized(0,0,b1,b2,g,l1,l2,m1,m2,x0(1),x0(3),x0(2),x0(4));
-B = B_linearized(l1,l2,m1,m2,x0(3));
+A = A_linearized(0,0,DP_model.b1,DP_model.b2,DP_model.g,DP_model.l1,DP_model.l2,DP_model.m1,DP_model.m2,x0(1),x0(3),x0(2),x0(4));
+B = B_linearized(DP_model.l1,DP_model.l2,DP_model.m1,DP_model.m2,x0(3));
 
 Q = eye(4,4);
-R = eye(2,2);
+R = .01*eye(2,2);
 
-K = lqr(A,B, Q, R);
+[K,S,e] = lqr(A,B, Q, R);
 
 x = [pi*0.5; 0; 0; 0];
 u = [0;0];
@@ -36,7 +36,7 @@ for i = 1:length(t)
     end
     
     % step system forward
-    x_d = DoublePendulum_Dynamics(u(1), u(2),b1,b2,g,l1,l2,m1,m2, x(1), x(3), x(2), x(4));
+    x_d = DoublePendulum_Dynamics(u(1), u(2),DP_actual.b1,DP_actual.b2,DP_actual.g,DP_actual.l1,DP_actual.l2,DP_actual.m1,DP_actual.m2, x(1), x(3), x(2), x(4));
     if any(isnan(x_d))
         disp('blah');
     end
@@ -45,7 +45,7 @@ for i = 1:length(t)
     t_last = t(i);
 end
 
-SimulateDoublePendulum(t, X, l1, l2)
+SimulateDoublePendulum(t, X, DP_model.l1, DP_model.l2)
     
     
     
