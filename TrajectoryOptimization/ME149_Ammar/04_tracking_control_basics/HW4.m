@@ -1,5 +1,5 @@
 %% Assignment 4
-
+run('../../ME149_Spring2018/codeLibrary/addLibraryToPath.m');
 %% Part 1
 % part 1a
 syms x0 xh v0 vh t x(t) v(t) a(t) h
@@ -16,7 +16,7 @@ eq4 = vh == v(h);
 s = solve([eq1; eq2; eq3; eq4], [c0; c1; c2; c3]);
 names = fieldnames(s);
 for i = 1:length(names)
-    fprintf("%s = %s \n", names{i}, s.(names{i}));
+    fprintf('%s = %s \n', names{i}, s.(names{i}));
 end
 % c0 = x0 
 % c1 = v0 
@@ -35,10 +35,9 @@ fprintf("a(h) = %s \n", simplify(a(h)));
 % part 1c
 syms J(t)
 J(t) = int(diff(x,t,3)^2, t, 0, h);
-fprintf("J(x(t)) = %s \n", simplify(J(t)));
+fprintf('J(x(t)) = %s \n', simplify(J(t)));
 %% Part 2
 clear all;
-run('../../ME149_Spring2018/codeLibrary/addLibraryToPath.m');
 
 % simple pendulum
 theta_ref = [0, pi/2, pi];
@@ -48,5 +47,10 @@ ref_q_pp = spline(t, theta_ref);
 ref_dq_pp = ppDer(ref_q_pp);
 ref_ddq_pp = ppDer(ref_dq_pp);
 
+g = 9.8;
+l = 1;
+param.freq = g/l;
+param.damp = 0;
+z = [0;0];
 
-% u_ref = simplePendulumInvDyn(
+u_ref = simplePendulumInvDyn(z, 0.1, param);
