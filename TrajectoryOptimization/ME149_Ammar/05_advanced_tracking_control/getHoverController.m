@@ -41,21 +41,28 @@ function hoverController = getHoverController(xRef, yRef, param)
 
 % Return a handle to the controller.
 
+z_des = [xRef; yRef; 0; 0; 0; 0]; % [q, q_dot] where q is [x,y,theta]
+u_des = planarQuadrotorHoverThrust(param);
+[A, B] = planarQuadrotorLinDyn(z_des, u_des, param);
+Q = eye(length(z_des));
+R = 10*eye(length(u_des));
+N = zeros(length(z_des),length(u_des)); % terminal cost
 
-hoverController = @(z)( planarQuadrotorHoverController(z, z_des, TODO ) );
+[K,S,E] = lqr(A,B,Q,R,N);
+hoverController = @(z)( planarQuadrotorHoverController(z, z_des, K, u_des ) );
 
 end
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
-function u = planarQuadrotorHoverController(z, z_des, TODO )
+function u = planarQuadrotorHoverController(z, z_des, K, u_des )
 %
 % TODO: documentation for this function
 % TODO: additional arguments
 % TODO: implement this function
 %
 
-[A, B, dzRef] = planarQuadrotorLinDyn(z_des, u, param)
+u = u_des - K*(z-z_des);
 
 
 end

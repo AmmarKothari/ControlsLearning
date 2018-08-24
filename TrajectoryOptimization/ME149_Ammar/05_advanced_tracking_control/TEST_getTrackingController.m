@@ -1,41 +1,38 @@
-function  TEST_getHoverController()
+function  TEST_getTrackingController()
 
 run('../../ME149_Spring2018/codeLibrary/addLibraryToPath.m')
 %%
 %       .m = mass of the quadrotor
 %       .w = distance between the rotors (width)
 %       .g = gravity acceleration
-param.m = 0.4;
-param.w = 0.4;
-param.g = 10;
+
+[ref, param] = importReferenceTrajectory('quadrotorOptimalFlipData.csv', 'quadrotorOptimalFlipParam.csv');
 
 fprintf('Test 1 \n');
 z0 = [0; 0; 0; 0; 0; 0];
-hover_des = [0,0];
-run_test(z0, hover_des, param, false);
+run_test(z0, ref, param, false);
 
-fprintf('Test 2 \n');
-z0 = [0; 0; 0; 0; 0; 0];
-hover_des = [5,2];
-run_test(z0, hover_des, param, false);
-
-fprintf('Test 3 \n');
-z0 = -1*ones(1,6);
-hover_des = [5,2];
-run_test(z0, hover_des, param, false);
-
-fprintf('Test 4 \n');
-param.m = 0.1;
-param.w = 1.0;
-z0 = -1*ones(1,6);
-hover_des = [5,2];
-run_test(z0, hover_des, param, true);
+% fprintf('Test 2 \n');
+% z0 = [0; 0; 0; 0; 0; 0];
+% run_test(z0, hover_des, param, false);
+% 
+% fprintf('Test 3 \n');
+% z0 = -1*ones(1,6);
+% hover_des = [5,2];
+% run_test(z0, hover_des, param, false);
+% 
+% fprintf('Test 4 \n');
+% param.m = 0.1;
+% param.w = 1.0;
+% z0 = -1*ones(1,6);
+% hover_des = [5,2];
+% run_test(z0, hover_des, param, true);
 
 end
 
-function run_test(z0, hover_des, param, showPlot)
+function run_test(z0, ref, param, showPlot)
 
-    hoverController = getHoverController(hover_des(1), hover_des(2), param);
+    hoverController = getTrackingController(hover_des(1), hover_des(2), param);
 
     t_step = 0.01;
     t_final = 5;

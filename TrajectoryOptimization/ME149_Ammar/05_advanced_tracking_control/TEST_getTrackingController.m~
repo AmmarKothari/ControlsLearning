@@ -1,6 +1,7 @@
-function  TEST_getHoverController()
+function  TEST_getTrackingController()
 
 run('../../ME149_Spring2018/codeLibrary/addLibraryToPath.m')
+
 %%
 %       .m = mass of the quadrotor
 %       .w = distance between the rotors (width)
@@ -35,7 +36,7 @@ end
 
 function run_test(z0, hover_des, param, showPlot)
 
-    hoverController = getHoverController(hover_des(1), hover_des(2), param);
+    hoverController = getTrackingController(hover_des(1), hover_des(2), param);
 
     t_step = 0.01;
     t_final = 5;

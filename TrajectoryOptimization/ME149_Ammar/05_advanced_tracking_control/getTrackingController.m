@@ -46,8 +46,11 @@ function [controller, gains] = getTrackingController(ref, param)
 %%%% TODO: specify the maximum "tolerable" state perturbation and control effort
 
 %%%% TODO: set the (constant) state (Q) and actuator (R) cost matricies
+Q = eye(length(z_des));
+R = 10*eye(length(u_des));
 
 %%%% TODO: call trajectoryLqr() to compute gains along the trajectory
+
 
 %%%% TODO: fit a cubic spline to the gains using pchip()
 

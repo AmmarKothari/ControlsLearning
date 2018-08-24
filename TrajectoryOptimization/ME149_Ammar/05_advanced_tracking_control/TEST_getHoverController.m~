@@ -12,28 +12,26 @@ param.g = 10;
 fprintf('Test 1 \n');
 z0 = [0; 0; 0; 0; 0; 0];
 hover_des = [0,0];
-run_test(z0, hover_des, param, false);
+run_test(z0, hover_des, param);
 
 fprintf('Test 2 \n');
 z0 = [0; 0; 0; 0; 0; 0];
 hover_des = [5,2];
-run_test(z0, hover_des, param, false);
+run_test(z0, hover_des, param);
 
 fprintf('Test 3 \n');
 z0 = -1*ones(1,6);
 hover_des = [5,2];
-run_test(z0, hover_des, param, false);
+run_test(z0, hover_des, param);
 
-fprintf('Test 4 \n');
-param.m = 0.1;
-param.w = 1.0;
+fprintf('Test 3 \n');
 z0 = -1*ones(1,6);
 hover_des = [5,2];
-run_test(z0, hover_des, param, true);
+run_test(z0, hover_des, param);
 
 end
 
-function run_test(z0, hover_des, param, showPlot)
+function run_test(z0, hover_des, param)
 
     hoverController = getHoverController(hover_des(1), hover_des(2), param);
 
@@ -52,10 +50,8 @@ function run_test(z0, hover_des, param, showPlot)
     fprintf('Start State: [%0.2f,%0.2f, %0.2f, %0.2f, %0.2f, %0.2f] \n', z0);
     fprintf('End State:   [%0.2f,%0.2f, %0.2f, %0.2f, %0.2f, %0.2f] \n', hover_des, zeros(1,4));
     fprintf('Steady State Error: %0.3f\n\n', SteadyStateError)
-    if showPlot
-        figure()
-        planarQuadrotorPlot(T, Y', u, param, false)
-    end
+    figure()
+    planarQuadrotorPlot(T, Y', u, param, false)
 
 
 end
