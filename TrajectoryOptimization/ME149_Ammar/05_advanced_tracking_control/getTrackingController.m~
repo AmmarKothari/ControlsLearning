@@ -50,15 +50,15 @@ Q = eye(ref.state.dim);
 R = 10*eye(ref.control.dim);
 
 %%%% TODO: call trajectoryLqr() to compute gains along the trajectory
-% u_des = planarQuadrotorHoverThrust(param);
-linSys = @(t) planarQuadrotorLinDyn(ppval(ref.state, t), ppval(ref.control,t), param);
+u_des = planarQuadrotorHoverThrust(param);
+linSys = @(t) planarQuadrotorLinDyn(ppval(ref.state, t), u_des, param);
 kGrid = trajectoryLqr(ref.time, linSys, Q, R);
 
 %%%% TODO: fit a cubic spline to the gains using pchip()
-gains = pchip (ref.time, kGrid);
+PP = pchip (ref.time, kGrid);
 
 %%%% TODO: return the function handle for the controller
-controller = @(t, z) quadrotorTrackingController(t, z, ref, gains);
+controller = @(t, z) quadrotorTrackingController(t, z, ref, kGrid);
 end
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -70,13 +70,12 @@ function u = quadrotorTrackingController(t, z, ref, gains)
 
 %%%% TODO: compute reference state and control
 z_des = ppval(ref.state, t);
-u_des = ppval(ref.control, t);
+u_des = ppval(ref.contorl, t);
 
 %%%% TODO: compute the feed-back gain matrix K
-k = reshape(ppval(gains, t), ref.control.dim, ref.state.dim);
+
+
 
 %%%% TODO: compute the output control (nominal + feedback)
-u = u_des - k*(z - z_des);
-
 
 end
