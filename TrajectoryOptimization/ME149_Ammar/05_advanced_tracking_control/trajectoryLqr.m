@@ -60,7 +60,7 @@ Qf = computeTerminalCost(tGrid, linSys, Q, R);
 % hint: you can use any simulation method. I suggest RK4 or ode45.
 nState = size(Q,1);
 ricattiODE = @(t,S) ricattiDynFun(t, S, linSys, Q, R, nState);
-sol = ode45(ricattiODE, [tGrid(end), tGrid(1)], Qf); % backwards! -- cool
+sol = ode45(ricattiODE, [tGrid(end), tGrid(1)], Qf(:)); % backwards! -- cool
 sGrid = deval(sol, tGrid);
 %%%% TODO: use the cost to go at each time to compute the gains:
 kGrid = computeGainMatrix(tGrid, sGrid, linSys, R, nState);
