@@ -144,10 +144,10 @@ function kGrid = computeGainMatrix(tGrid, sGrid, linSys, R, nState)
 %
 
 %%%% TODO: implement this function if you find it useful.
-kGrid = zeros(size(R,1)*nState, length(tGrid));
+kGrid = zeros(
 for i = 1:length(tGrid)
-    [~,B] = linSys(tGrid(i));
-    S = reshape(sGrid(:, i), nState, nState);
+    [A,B] = linSys(tGrid(i));
+    S = reshape(sGrid(:, i), nState, nstate);
     K = R \ B' * S;
     kGrid(:,i) = K(:);
 end
