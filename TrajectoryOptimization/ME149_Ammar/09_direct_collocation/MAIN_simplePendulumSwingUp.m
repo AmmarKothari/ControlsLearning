@@ -11,7 +11,7 @@
 %   --> Adjust ALL of the parameters below and see what happens
 % 
 
-run('../../../codeLibrary/addLibraryToPath.m');
+run('../../ME149_Spring2018/codeLibrary/addLibraryToPath.m');
 clc; clear;
 
 % Duration and number of grid points:
