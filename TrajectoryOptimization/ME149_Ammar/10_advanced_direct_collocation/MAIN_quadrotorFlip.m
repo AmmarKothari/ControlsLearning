@@ -10,7 +10,8 @@ run('../../ME149_Spring2018/codeLibrary/addLibraryToPath.m');
 clc; clear;
 
 % Duration and number of grid points:
-nGrid = 30;
+nSeg = 25;
+nGridGuess = nSeg + 1;
 duration = 1.0;
 
 % Boundary states:
@@ -21,7 +22,7 @@ xBegin = [0; % horizontal position
 xFinal = [1; % horizontal position
           0; % vertical position
           2*pi; % angle
-          randn(3,1)];
+          zeros(3,1)];
 
 % Dynamics function:
 param = struct('m', 0.5, 'w', 0.5, 'g', 5);
@@ -29,31 +30,31 @@ problem.func.dynamics = @(t, x, u)( planarQuadrotorDynamics(x, u, param) );
 
 % Path integral:  (minimize the integral of actuation-squared)
 problem.func.pathObj = @(t, x, u)( sum(u.^2, 1) );
-% problem.func.pathObj = @(t, x, u)( sum(abs(u), 1) );
 
 % Boundary constraint:
 problem.func.bndCst = @(t0, tF, x0, xF)( ...
                         deal([], [x0 - xBegin; xF - xFinal]) );
 
 % Initial guess: (cubic segment, matching boundary conditions)
-problem.guess.time = linspace(0, duration, nGrid);
+problem.guess.time = linspace(0, duration, nGridGuess);
 ppAngle = pwch([0, duration], [xBegin(1:3), xFinal(1:3)], ...
                               [xBegin(4:6), xFinal(4:6)]);
 ppRate = ppDer(ppAngle);
 angleGuess = ppval(ppAngle, problem.guess.time);
 rateGuess = ppval(ppRate, problem.guess.time);
 problem.guess.state = [angleGuess; rateGuess];
-problem.guess.control = zeros(2, nGrid);              
+problem.guess.control = zeros(2, nGridGuess);              
 
 % Set the options for FMINCON
-problem.nlpOpt = optimoptions('fmincon');
+problem.nlpOpt = optimset('fmincon');
 problem.nlpOpt.Display = 'iter';
-problem.nlpOpt.OptimalityTolerance = 1e-6;
-problem.nlpOpt.ConstraintTolerance = 1e-8;
-problem.nlpOpt.MaxFunctionEvaluations = 2e5;
+problem.nlpOpt.TolFun = 1e-6;
+problem.nlpOpt.TolCon = 1e-10;
+problem.nlpOpt.MaxIter = 250;
+problem.nlpOpt.MaxFunEvals = 1e5;
 
 % Call the optimization:
-soln = dirColBvpTrap(problem);
+soln = dirColBvpHermiteSimpson(problem);
 
 %% Make some plots:
 figure(8010); clf;
