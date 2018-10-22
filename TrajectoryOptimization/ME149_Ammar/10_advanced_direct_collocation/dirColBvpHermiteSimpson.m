@@ -112,6 +112,7 @@ tic;
 [S1,fval,exitflag,output] = fmincon(P1); % solves the trajectory problem
 soln.info.nlpTime = toc;
 soln.info.exitFlag = exitflag;
+disp(exitflag)
 soln.info.objVal = fval;
 output_fields = fields(output);
 for i = 1:length(output_fields)
@@ -120,7 +121,7 @@ end
 
 soln.grid.time = guess.time;
 [soln.grid.state, soln.grid.control] = unpackFunc(S1);
-soln.grid.dState = dynFunc(guess.time, soln.grid.state, soln.grid.control);
+soln.grid.dState = dynFunc(soln.grid.time, soln.grid.state, soln.grid.control);
 
 % linear piece-wise spline -- this is linked to the integration method when
 % solving
@@ -153,6 +154,7 @@ function J = objFunc(DV, unpackFunc, hStep, pathObj)
 end
 
 function [c, ceq] = dynamicsConstraints(DV, dynFunc, unpackFunc, hStep, boundaryFunc)
+    global global_defects
     % Hermite-Simpson integration
     [x,u] = unpackFunc(DV);
     x_lower = x(:,1:2:end-2);
@@ -164,6 +166,7 @@ function [c, ceq] = dynamicsConstraints(DV, dynFunc, unpackFunc, hStep, boundary
     x_bar = x_lower + hStep(1:2:end)./6.*(xd_lower + 4.*xd_mid + xd_upper);
 %     x_bar = x_lower + hStep(1:2:end)./2.*(xd_lower + xd_upper); %trap rule
     defects = (x_upper - x_bar)';
+    global_defects{length(global_defects)+1} = defects;
     
     % Boundary Conditions
     t0 = 0;
@@ -174,7 +177,7 @@ function [c, ceq] = dynamicsConstraints(DV, dynFunc, unpackFunc, hStep, boundary
     
     % combine everything
     c = bndCstIneq;
-    ceq = [defects(:); bndCstEq];
+    ceq = [reshape(defects, numel(defects), 1); bndCstEq];
 end
 
 function [Aeq, beq] = boundaryConstraints(guess, problem) % this should use the provided boundary function

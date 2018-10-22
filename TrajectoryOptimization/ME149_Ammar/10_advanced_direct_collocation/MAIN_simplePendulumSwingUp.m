@@ -13,7 +13,8 @@
 
 run('../../ME149_Spring2018/codeLibrary/addLibraryToPath.m');
 clc; clear;
-
+global global_defects
+global_defects = {};
 % Duration and number of grid points:
 nSeg = 15;
 duration = 2.0;
@@ -51,7 +52,8 @@ problem.nlpOpt.MaxIter = 250;
 problem.nlpOpt.MaxFunEvals = 1e5;
 
 % Call the optimization:
-soln = dirColBvpHermiteSimpsonSoln(problem);
+soln = dirColBvpHermiteSimpson(problem);
+% soln = dirColBvpHermiteSimpsonSoln(problem);
 
 %% Animate solution
 t = linspace(0, duration, 250);
@@ -75,6 +77,17 @@ hold on
 plot(TOUT, YOUT(:,2), 'bx-') % velocity
 hold off
 ylim([-pi, pi])
+
+figure()
+for i = 1:size(YOUT,2)
+    plot(0,0, 'bo') % pivot point
+    axis([-1,1,-1,1])
+    hold on
+    plot(sin(YOUT(1,i)), -cos(YOUT(1,i)), 'ro') %pendulum end
+    plot([0, sin(YOUT(1,i))], [0, -cos(YOUT(1,i))], 'k-') %rod
+    hold off
+    pause(0.01)
+end
 
 %% Make some plots:
 
@@ -122,4 +135,14 @@ plot(tGrid, uGrid, 'o', 'LineWidth', lineWidth);
 xlabel('time (s)');
 ylabel('torque (Nm)');
 title(sprintf('ObjVal: %4.4f', soln.info.objVal));
+
+%%
+iters = length(global_defects);
+total_defect = zeros(iters,1);
+for i = 1:iters
+    total_defect(i) = sum(sum(global_defects{i}));
+end
+figure()
+plot(1:iters, total_defect, 'rx')
+
 
