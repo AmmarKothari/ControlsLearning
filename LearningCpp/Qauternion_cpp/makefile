@@ -1,14 +1,32 @@
-CXX = g++
+CXX = g++ -v
 CXXFLAGS = -std=c++0x -Wall
+# CXXFLAGS = -O
 
 # OBJECTS = quaternion.o quaternion_basic_test.cpp
 
-quaternion: quaternion.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^
+# quaternion.o: quaternion.cpp quaternion.h
 
-quaternion_basic_test: quaternion_basic_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^
+quaternion.o: quaternion.cpp
+	$(CXX) $(CXXFLAGS) -c quaternion.cpp
 
-all: quaternion quaternion_basic_test
+quaternion_basic_test.o: quaternion_basic_test.cpp
+	$(CXX) $(CXXFLAGS) -c quaternion_basic_test.cpp color.h
+
+quaternion_basic_test: quaternion_basic_test.o quaternion.o
+	$(CXX) $(CXXFLAGS) -o quaternion_basic_test quaternion_basic_test.o quaternion.o
+
+
+# quaternion:
+# 	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# quaternion_basic_test:
+# 	$(CXX) $(CXXFLAGS) -o $@ $^	
+
+# quaternion_basic_test.o: quaternion_basic_test.cpp quaternion.h
+# 	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# quaternion_basic_test: quaternion_basic_test.o
+
+all: quaternion_basic_test
 
 # $(OBJECTS): quaternion.cpp
