@@ -1,6 +1,11 @@
 #include <iostream>
 #include "quaternion.h"
 #include <math.h>
+#include <vector>
+#include <boost/python/numpy.hpp>
+#include <boost/python.hpp>
+
+namespace py = boost::python;
 
 void quaternion::test(){
 	std::cout << "Testing if this works!" << std::endl;
@@ -12,6 +17,15 @@ void quaternion::set_xyzw(float x_in, float y_in, float z_in, float w_in){
 	z = z_in;
 	w = w_in;
 	this->normalize();
+};
+
+std::vector<float> quaternion::get_xyzw(){
+	std::vector<float> xyzw_vec;
+	xyzw_vec.push_back(x);
+	xyzw_vec.push_back(y);
+	xyzw_vec.push_back(z);
+	xyzw_vec.push_back(w);
+	return xyzw_vec;
 };
 
 void quaternion::print(){
@@ -41,6 +55,10 @@ void quaternion::normalize(){
 	w = w/d;
 }
 
+quaternion quaternion::get_conjugate(){
+	return quaternion(-x, -y, -z, w);
+}
+
 std::ostream& operator<< (std::ostream &out, quaternion const& q){
 	char buffer [100];
 	sprintf(buffer, "Quaternion <%.4f, %.4f, %.4f, %.4f>", q.x, q.y, q.z, q.w);
@@ -60,7 +78,6 @@ float quaternion::get_z(){
 float quaternion::get_w(){
 	return w;
 };
-
 
 // int main()
 // {

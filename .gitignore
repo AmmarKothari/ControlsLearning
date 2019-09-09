@@ -31,3 +31,7 @@ octave-workspace
 *__pychace__/
 *boost/
 *build/
+
+*.pyc
+*.so
+*.o
