@@ -179,7 +179,7 @@ class QuaternionPythonTest(unittest.TestCase):
 				        [ 0.,  0.,  -1.]])
 		self.assertEqual(self.q_x.get_rotation_matrix().tolist(), R_x.tolist())
 
-	@run_py
+	@run_both
 	def test_conjugate(self):
 		self.assertEqual(self.q_unit.get_conjugate().get_xyzw().tolist(), [0, 0, 0, 1])
 		self.assertEqual(self.q_x.get_conjugate().get_xyzw().tolist(), [-1, 0, 0, 0])
@@ -232,6 +232,13 @@ class QuaternionPythonTest(unittest.TestCase):
 	@run_py
 	def test_sub(self):
 		self.assertEqual(self.q_unit, self.q_x - self.q_x)
+
+	@run_both
+	def test_set_xyzw(self):
+		# import pdb
+		# pdb.set_trace()
+		self.q_unit.set_xyzw(1, 0, 0, 0)
+		self.assertEqual(self.q_unit, self.q_x)
 
 
 	if __name__ == '__main__':

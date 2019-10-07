@@ -214,6 +214,17 @@ quaternion operator- (quaternion& q_self, quaternion& other){
 	return q_self.relative_rotation_by(conj);
 }
 
+bool operator== (quaternion& q_self, quaternion& other){
+	bool x_equal = q_self.get_x() == other.get_x();
+	bool y_equal = q_self.get_y() == other.get_y();
+	bool z_equal = q_self.get_z() == other.get_z();
+	bool w_equal = q_self.get_w() == other.get_w();
+	if (x_equal && y_equal && z_equal && w_equal){
+		return true
+	}
+	return false
+}
+
 //* * * * * * * * * * * * * *
 // QUATERNION OPERATION METHODS
 //* * * * * * * * * * * * * * 

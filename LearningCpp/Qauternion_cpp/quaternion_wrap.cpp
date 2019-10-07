@@ -23,7 +23,10 @@ BOOST_PYTHON_MODULE(quaternion_wrap)
     	.def("get_w", &quaternion::get_w)
     	.def("get_xyzw", &quaternion::py_np_get_xyzw)
         .def("get_conjugate", &quaternion::get_conjugate)
-    	// .def("normailze", &quaternion::normalize)
+        .def("set_xyzw", &quaternion::set_xyzw)
+
+    	.def("normailze", &quaternion::normalize)
     	// .def("__repr__", &quaternion::repr())
+        .def("__eq__", &quaternion::operator==)
 		;
 };

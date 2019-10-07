@@ -234,6 +234,12 @@ TEST_CASE("<< operator", "[op_<<]"){
 	std::cout << qx << std::endl;
 }
 
+TEST_CASE("== operator", "[op_==]"){
+	quaternion q_unit_1(0.0, 0.0, 0.0, 1.0);
+	quaternion q_unit_2(0.0, 0.0, 0.0, 1.0);
+	REQUIRE( q_unit_1 == q_unit_2 );
+}
+
 //* * * * * * * * * * * * * *
 // PYTHON METHODS
 //* * * * * * * * * * * * * * 

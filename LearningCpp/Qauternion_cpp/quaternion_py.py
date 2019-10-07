@@ -87,6 +87,10 @@ class quaternion(object):
 	def get_xyzw(self):
 		return self.quat
 
+	def set_xyzw(self, x, y, z, w):
+		self.quat = np.array([x, y, z, w])
+		self.normalize()
+
 	@property
 	def x(self):
 		return self.quat[0]
@@ -160,6 +164,10 @@ class quaternion(object):
 		pin = quaternion(vec)
 		pout = quaternion.quat_mult(quaternion.quat_mult(self, pin), self.get_conjugate())
 		return pout.get_xyzw()[:3]
+
+	def normalize(self):
+		d = np.sqrt(np.dot(self.quat, self.quat))
+		self.quat = self.quat / d
 
 	def __repr__(self):
 		return '[{:.3f}, {:.3f}, {:.3f}, {:.3f}]'.format(*self.quat)
