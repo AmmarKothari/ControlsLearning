@@ -21,9 +21,10 @@ void show_image(){
   img.fill(0);                           // Set pixel values to 0 (color : black)
   unsigned char purple[] = { 255,0,255 };        // Define a purple color
   img.draw_text(100,100,"Hello World",purple); // Draw a purple "Hello world" at coordinates (100,100).
-  CImgDisplay local(img, "hah");
-  while (true){
-  	local.wait();
+  CImgDisplay display(img, "Showing image");
+  while (!display.is_closed()){
+  	display.wait();
+  	img.display(display);
   }
 }
 
