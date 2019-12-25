@@ -1,0 +1,89 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "simple pendulum model test",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++0x",
+                "-Wall",
+                "modelSystem/simple_pendulum/simple_pendulum_test.cpp",
+                "-o",
+                "modelSystem/simple_pendulum/simple_pendulum_test.out",
+                "--debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": ["simple pendulum model"]
+        },
+        {
+            "label": "simple pendulum model",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "-c",
+                "modelSystem/simple_pendulum/simple_pendulum.cpp",
+                "--debug"
+            ]
+        },
+        {
+            "label": "pointMass model",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "modelSystem/pointMass/pointMass.cpp",
+                "-o",
+                "modelSystem/pointMass/pointMass.out",
+                "--debug"
+            ]
+        },
+        {
+            "label": "hw1",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "01_intro/hw1.cpp",
+                "-o",
+                "01_intro/hw1.out",
+                "--debug"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "clang++ build active file",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "cpp build active file",
+            "command": "/usr/bin/cpp",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            }
+        }
+    ]
+}

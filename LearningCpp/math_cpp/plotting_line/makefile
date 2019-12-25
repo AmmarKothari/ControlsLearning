@@ -7,4 +7,4 @@ test: clobber write_data
 all: write_data
 
 clobber:
-	rm -f write_data input_file.csv
+	rm -f write_data output_file.csv

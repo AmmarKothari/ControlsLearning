@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pdb
 
-INPUT_FILE = 'input_file.csv'
+INPUT_FILE = 'output_file.csv'
 
 input_data = np.genfromtxt(INPUT_FILE)
 
