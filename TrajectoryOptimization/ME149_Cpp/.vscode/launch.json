@@ -8,7 +8,7 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/01_intro/hw1.out",
+            "program": "${workspaceFolder}/simulation/euler_method_sim_test.out",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

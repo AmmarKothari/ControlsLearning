@@ -4,20 +4,19 @@
         {
             "label": "simple pendulum model test",
             "type": "shell",
-            "command": "g++",
+            "command": "clang++",
             "args": [
-                "-std=c++0x",
-                "-Wall",
-                "modelSystem/simple_pendulum/simple_pendulum_test.cpp",
+                "-std=c++17",
+                "-stdlib=libc++",
+                "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum_test.cpp",
                 "-o",
-                "modelSystem/simple_pendulum/simple_pendulum_test.out",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum_test.out",
                 "--debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "dependsOn": ["simple pendulum model"]
+            "group": "build",
+            "dependsOn": [
+                "simple pendulum model"
+            ]
         },
         {
             "label": "simple pendulum model",
@@ -27,21 +26,78 @@
                 "-std=c++17",
                 "-stdlib=libc++",
                 "-c",
-                "modelSystem/simple_pendulum/simple_pendulum.cpp",
+                "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum.cpp",
+                "-o",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum.o",
                 "--debug"
-            ]
+            ],
+            "group": "build"
         },
         {
-            "label": "pointMass model",
+            "label": "eulers method",
             "type": "shell",
             "command": "clang++",
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
-                "modelSystem/pointMass/pointMass.cpp",
+                "-c",
+                "${workspaceFolder}/src/simulation/euler_method_sim.cpp",
                 "-o",
-                "modelSystem/pointMass/pointMass.out",
+                "${workspaceFolder}/build/modelSystem/euler_method_sim.o",
                 "--debug"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "eulers method test",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "${workspaceFolder}/src/simulation/euler_method_sim_test.cpp",
+                "-o",
+                "${workspaceFolder}/build/simulation/euler_method_sim_test.out",
+                "--debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "eulers method"
+            ]
+        },
+        {
+            "label": "sim util methods",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "-c",
+                "${workspaceFolder}/src/simulation/utils.cpp",
+                "-o",
+                "${workspaceFolder}/build/simulation/utils.o",
+                "--debug"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "sim util tests",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "${workspaceFolder}/src/simulation/utils_test.cpp",
+                "-o",
+                "${workspaceFolder}/build/simulation/utils_test.out",
+                "--debug"
+            ],
+            "group": "build",
+            "dependsOn": [
+                "sim util methods"
             ]
         },
         {
@@ -55,7 +111,8 @@
                 "-o",
                 "01_intro/hw1.out",
                 "--debug"
-            ]
+            ],
+            "group": "test"
         },
         {
             "type": "shell",
