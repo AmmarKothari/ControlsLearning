@@ -10,9 +10,9 @@ typedef std::function<state_type(state_type &, float)> dynamics_func_type;
 class DynamicsModel{
     public:
         virtual state_type forward_dynamics(state_type &, float);
-        virtual void inverse_dynamics();
+        state_vector_type forward_dynamics_vectorized(state_vector_type &, time_vector_type &);
         
-        state_vector_type forward_dynamics_vectorized(state_vector_type &, time_vector_type);
+        virtual void inverse_dynamics();
 
         int num_states; // Number of states
 };

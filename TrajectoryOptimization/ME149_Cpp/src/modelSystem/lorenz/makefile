@@ -24,14 +24,20 @@ directory: ${BUILDDIR}
 ${BUILDDIR}:
 	mkdir -p $(BUILDDIR)
 
+$(BUILDDIR)/../dynamics_model.o:
+	cd $(SOURCEDIR)/.. && make all
+
+$(BUILDDIR)/../../simulation/utils.o:
+	cd $(SOURCEDIR)/../../simulation && make all
+
+$(BUILDDIR)/../../simulation/eulers_method/euler_method_sim.o:
+	cd $(SOURCEDIR)/../../simulation && make all
+
 $(OBJ): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.cpp
 	$(CXX) $(CXX_FLAGS) -c $< -o $@
 
 $(MAIN_EXEC): $(OBJ)
 	$(CXX) $^ $(MAIN_EXEC_DEPENDS) -o $@
-
-# $(BUILDDIR)/../utils.o:
-# 	cd $(SOURCEDIR)/..
 
 clean:
 	rm -rf $(BUILDDIR)/*.o

@@ -5,8 +5,14 @@ state_type DynamicsModel::forward_dynamics(state_type &, float) {
     return dx;    
 }
 
-state_vector_type DynamicsModel::forward_dynamics_vectorized(state_vector_type &, time_vector_type) {
+state_vector_type DynamicsModel::forward_dynamics_vectorized(state_vector_type &x, time_vector_type &time) {
         state_vector_type dx_vector;
+        state_type dx_current;
+        for (size_t i=0; i<x.size(); i++){
+            dx_current = this->forward_dynamics(x[i], time[i]);
+            dx_vector.push_back(dx_current);
+            dx_current.clear();
+        }
         return dx_vector;
 }
 
