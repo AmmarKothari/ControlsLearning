@@ -1,14 +1,15 @@
-#ifndef _GUARD_MODEL_DYNAMICS
-#define _GUARD_MODEL_DYNAMICS
-#include <vector>
+#include "dynamics_model.h"
 
-typedef std::vector<float> state_type;
-typedef std::function<state_type(state_type &, float)> dynamics_func_type;
+state_type DynamicsModel::forward_dynamics(state_type &, float) {
+    state_type dx;
+    return dx;    
+}
 
-class DynamicsModel{
-    public:
-        state_type forward_dynamics(state_type &x, float t);
-        state_type inverse_dynamics();
-};
+state_vector_type DynamicsModel::forward_dynamics_vectorized(state_vector_type &, time_vector_type) {
+        state_vector_type dx_vector;
+        return dx_vector;
+}
 
-#endif
+void DynamicsModel::inverse_dynamics(){}
+
+
