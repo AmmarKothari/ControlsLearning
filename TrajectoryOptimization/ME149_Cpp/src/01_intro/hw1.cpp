@@ -5,7 +5,7 @@
 #include <random>
 #include <string>
 
-#include "../../../LearningCpp/math_cpp/utils/write_to_csv.cpp"
+#include "write_to_csv.cpp"
 
 float CIRCLE_RADIUS = 1.0;
 

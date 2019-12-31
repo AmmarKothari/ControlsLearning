@@ -1,5 +1,8 @@
+import pdb
 import matplotlib.pyplot as plt
 import numpy as np
+
+BUILD_DIR = "../../build/01_intro/"
 
 
 def plot_hw_1(control_points, sample_points):
@@ -13,17 +16,20 @@ def plot_hw_1(control_points, sample_points):
     plt.plot(sample_points[:, 0], sample_points[:, 1], 'b.')
     plt.axis("equal")
 
+
 plt.subplot(2, 1, 1)
-part_1_control_points = np.genfromtxt("part_1_control_points.csv", delimiter=",")
-part_1_sample_points = np.genfromtxt("part_1_sample_fractal_points.csv", delimiter=",")
+part_1_control_points = np.genfromtxt(
+    BUILD_DIR + "part_1_control_points.csv", delimiter=",")
+part_1_sample_points = np.genfromtxt(
+    BUILD_DIR + "part_1_sample_fractal_points.csv", delimiter=",")
 plot_hw_1(part_1_control_points, part_1_sample_points)
 
-
-
 plt.subplot(2, 1, 2)
-part_2_control_points = np.genfromtxt("part_2_control_points.csv", delimiter=",")
-part_2_sample_points = np.genfromtxt("part_2_sample_fractal_points.csv", delimiter=",")
+part_2_control_points = np.genfromtxt(
+    BUILD_DIR + "part_2_control_points.csv", delimiter=",")
+part_2_sample_points = np.genfromtxt(
+    BUILD_DIR + "part_2_sample_fractal_points.csv", delimiter=",")
 plot_hw_1(part_2_control_points, part_2_sample_points)
 
-plt.save_fig('hw_1')
+plt.savefig(BUILD_DIR + 'hw_1')
 plt.show()

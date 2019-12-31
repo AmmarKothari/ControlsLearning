@@ -83,10 +83,7 @@
                 "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum_test.cpp",
                 "--debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
         },
         {
             "label": "link simple pendulum model",
@@ -130,7 +127,7 @@
             "args": [
                 "-o",
                 "${workspaceFolder}/build/simulation/euler_method_sim_test.out",
-                "${workspaceFolder}/build/simulation/euler_method_sim_test.o",
+                "${workspaceFolder}/build/simulation/euler_method_sim_test.o"
             ],
             "group": "build",
             "dependsOn": [
@@ -223,12 +220,17 @@
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
+                "-I",
+                "/Users/ammarkothari/Projects/ControlsLearning/LearningCpp/math_cpp/utils",
                 "-o",
-                "01_intro/hw1.out",
-                "01_intro/hw1.cpp",
+                "${workspaceFolder}/build/01_intro/hw1.out",
+                "${workspaceFolder}/src/01_intro/hw1.cpp",
                 "--debug"
             ],
-            "group": "test"
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
             "type": "shell",
