@@ -1,5 +1,5 @@
 #include <vector>
-#include "../dynamics_model.cpp"
+#include "../dynamics_model.h"
 #include <cmath>
 
 class Lorenz : public DynamicsModel{

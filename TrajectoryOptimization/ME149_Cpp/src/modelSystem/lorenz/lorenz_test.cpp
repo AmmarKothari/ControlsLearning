@@ -2,8 +2,8 @@
 #define CATCH_CONFIG_CONSOLE_WIDTH 300
 #include <catch2/catch.hpp>
 
-#include "lorenz.cpp"
-#include "../../simulation/euler_method_sim.cpp"
+#include "lorenz.h"
+#include "../../simulation/eulers_method/euler_method_sim.h"
 
 
 

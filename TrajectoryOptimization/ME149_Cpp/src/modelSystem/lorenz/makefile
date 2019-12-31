@@ -1,0 +1,37 @@
+CXX = clang++
+CXX_FLAGS = -std=c++17 -stdlib=libc++
+
+ROOT_FOLDER = /Users/ammarkothari/Projects/ControlsLearning/TrajectoryOptimization/ME149_Cpp
+LOCALDIR = modelSystem/lorenz
+SOURCEDIR = $(ROOT_FOLDER)/src/$(LOCALDIR)
+BUILDDIR = $(ROOT_FOLDER)/build/$(LOCALDIR)
+
+SOURCES:=$(wildcard $(SOURCEDIR)/*.cpp)
+OBJ:=$(patsubst $(SOURCEDIR)/%.cpp,$(BUILDDIR)/%.o,$(SOURCES))
+
+MAIN_EXEC = lorenz_test.out
+
+MAIN_EXEC_DEPENDS = $(BUILDDIR)/../dynamics_model.o \
+  $(BUILDDIR)/../../simulation/eulers_method/euler_method_sim.o \
+  $(BUILDDIR)/../../simulation/utils.o
+
+.PHONY: directory
+
+all: directory $(OBJ) $(MAIN_EXEC)
+
+directory: ${BUILDDIR}
+
+${BUILDDIR}:
+	mkdir -p $(BUILDDIR)
+
+$(OBJ): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.cpp
+	$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+$(MAIN_EXEC): $(OBJ)
+	$(CXX) $^ $(MAIN_EXEC_DEPENDS) -o $@
+
+# $(BUILDDIR)/../utils.o:
+# 	cd $(SOURCEDIR)/..
+
+clean:
+	rm -rf $(BUILDDIR)/*.o
