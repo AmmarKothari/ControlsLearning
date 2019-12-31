@@ -17,3 +17,5 @@ class SimplePendulum : public DynamicsModel{
         state_type forward_dynamics(state_type &, float);
 
 };
+
+state_type simple_pendulum_forward_dynamics(state_type &, float);

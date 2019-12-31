@@ -83,6 +83,28 @@
         "strstream": "cpp",
         "typeindex": "cpp",
         "variant": "cpp",
-        "cfenv": "cpp"
-    }
+        "cfenv": "cpp",
+        "any": "cpp",
+        "charconv": "cpp",
+        "codecvt": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "coroutine": "cpp",
+        "forward_list": "cpp",
+        "scoped_allocator": "cpp",
+        "unordered_set": "cpp",
+        "valarray": "cpp",
+        "*.ipp": "cpp",
+        "cuchar": "cpp",
+        "netfwd": "cpp",
+        "rope": "cpp",
+        "slist": "cpp"
+    },
+    "python.linting.pylintEnabled": false,
+    "python.linting.mypyEnabled": true,
+    "python.linting.enabled": true,
+    "editor.formatOnSave": true,
+    "C_Cpp.clang_format_path": ".clang-format",
+    "C_Cpp.clang_format_style": "file",
+    "C_Cpp.clang_format_fallbackStyle": "none"
 }

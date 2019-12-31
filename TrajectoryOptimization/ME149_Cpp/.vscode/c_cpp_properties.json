@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/Users/ammarkothari/Projects/ControlsLearning/LearningCpp/math_cpp/utils/**"
             ],
             "defines": [],
             "macFrameworkPath": [
@@ -18,7 +19,7 @@
                 "path": [
                     "${workspaceFolder}/**"
                 ],
-                "limitSymbolsToIncludedHeaders": false
+                "limitSymbolsToIncludedHeaders": true
             }
         },
         {

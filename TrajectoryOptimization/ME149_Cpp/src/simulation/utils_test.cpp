@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #define CATCH_CONFIG_CONSOLE_WIDTH 300
 #include <catch2/catch.hpp>
-#include "utils.cpp"
+#include "utils.h"
 
 TEST_CASE("linspace test", "[linspace_test]"){
     std::vector<float> test_output;

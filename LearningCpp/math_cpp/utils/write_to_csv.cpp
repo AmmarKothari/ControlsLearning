@@ -3,15 +3,18 @@
 #include <vector>
 #include <string>
 
+#include "type_defines.h"
+
 using namespace std;
 
-#define vec_2d_float vector< vec_float>
-#define vec_float vector<float>
 
 void write_matrix_to_csv(vec_2d_float xy_data, string output_file_name){
 	ofstream output_file;
 	output_file.open(output_file_name);
 	for (auto xy = xy_data.begin(); xy != xy_data.end(); xy++){
+		if (xy->size() == 0){
+			continue;
+		}
 		for (auto val = xy->begin(); val != xy->end()-1; val++){
 			output_file << *val << ", ";
 		};

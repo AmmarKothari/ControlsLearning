@@ -1,9 +1,6 @@
-#ifndef _GUARD_SIM_UTILS
-#define _GUARD_SIM_UTILS
+#include "utils.h"
 
-#include <vector>
 // TODO: Move these into a helper folder
-// TODO: write tests for these!
 
 // Cooler implementation: https://gist.github.com/mortenpi/f20a93c8ed3ee7785e65
 std::vector<float> linspace(float min, float max, size_t N){
@@ -23,5 +20,3 @@ std::vector<float> arange(float min, float max, float step_size){
     }
     return out_range;
 }
-
-#endif

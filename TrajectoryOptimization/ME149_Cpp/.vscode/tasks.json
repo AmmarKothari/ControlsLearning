@@ -2,114 +2,230 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "simple pendulum model test",
+            "label": "hw2",
             "type": "shell",
             "command": "clang++",
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
-                "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum_test.cpp",
+                "-I",
+                "/Users/ammarkothari/Projects/ControlsLearning/LearningCpp/math_cpp/utils",
+                "${workspaceFolder}/src/02_simulation_basics/hw_2.cpp",
                 "-o",
-                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum_test.out",
+                "${workspaceFolder}/build/02_simulation_basics/hw_2.out",
                 "--debug"
             ],
             "group": "build",
             "dependsOn": [
-                "simple pendulum model"
+                "simple pendulum model",
+                "eulers method"
             ]
         },
         {
-            "label": "simple pendulum model",
+            "label": "lorenz model test",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "${workspaceFolder}/src/modelSystem/lorenz/lorenz_test.cpp",
+                "-o",
+                "${workspaceFolder}/build/modelSystem/lorenz/lorenz_test.out",
+                "--debug"
+            ],
+            "dependsOn": [
+                "lorenz model"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "lorenz model",
             "type": "shell",
             "command": "clang++",
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
                 "-c",
-                "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum.cpp",
+                "${workspaceFolder}/src/modelSystem/lorenz/lorenz.cpp",
                 "-o",
+                "${workspaceFolder}/build/modelSystem/lorenz/lorenz.o",
+                "--debug"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "link simple pendulum model test",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
                 "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum.o",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum_test.o",
+                "-o",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum_test.out",
                 "--debug"
+            ],
+            "dependsOn": [
+                "compile simple pendulum model",
+                "compile simple pendulum model test"
             ],
             "group": "build"
         },
         {
-            "label": "eulers method",
+            "label": "compile simple pendulum model test",
             "type": "shell",
             "command": "clang++",
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
                 "-c",
-                "${workspaceFolder}/src/simulation/euler_method_sim.cpp",
                 "-o",
-                "${workspaceFolder}/build/modelSystem/euler_method_sim.o",
-                "--debug"
-            ],
-            "group": "build"
-        },
-        {
-            "label": "eulers method test",
-            "type": "shell",
-            "command": "clang++",
-            "args": [
-                "-std=c++17",
-                "-stdlib=libc++",
-                "${workspaceFolder}/src/simulation/euler_method_sim_test.cpp",
-                "-o",
-                "${workspaceFolder}/build/simulation/euler_method_sim_test.out",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum_test.o",
+                "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum_test.cpp",
                 "--debug"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "dependsOn": [
-                "eulers method"
-            ]
+            }
         },
         {
-            "label": "sim util methods",
+            "label": "link simple pendulum model",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-o",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum.out",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum.o"
+            ],
+            "dependsOn": [
+                "compile simple pendulum model",
+                "compile eulers method"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "compile simple pendulum model",
             "type": "shell",
             "command": "clang++",
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
                 "-c",
-                "${workspaceFolder}/src/simulation/utils.cpp",
+                "-I",
+                "${workspaceFolder}/build/simulation/euler_method_sim.o",
                 "-o",
-                "${workspaceFolder}/build/simulation/utils.o",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum.o",
+                "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum.cpp",
+                "--debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "link eulers method test",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-o",
+                "${workspaceFolder}/build/simulation/euler_method_sim_test.out",
+                "${workspaceFolder}/build/simulation/euler_method_sim_test.o",
+            ],
+            "group": "build",
+            "dependsOn": [
+                "compile eulers method test",
+                "compile eulers method",
+                "compile sim util methods"
+            ]
+        },
+        {
+            "label": "compile eulers method test",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "-c",
+                "-o",
+                "${workspaceFolder}/build/simulation/euler_method_sim_test.o",
+                "${workspaceFolder}/src/simulation/euler_method_sim_test.cpp",
                 "--debug"
             ],
             "group": "build"
         },
         {
-            "label": "sim util tests",
+            "label": "compile eulers method",
             "type": "shell",
             "command": "clang++",
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
-                "${workspaceFolder}/src/simulation/utils_test.cpp",
+                "-c",
+                "-L",
+                "${workspaceFolder}/build/simulation/utils.o",
+                "-o",
+                "${workspaceFolder}/build/simulation/euler_method_sim.o",
+                "${workspaceFolder}/src/simulation/euler_method_sim.cpp",
+                "--debug"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "link sim util tests",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
                 "-o",
                 "${workspaceFolder}/build/simulation/utils_test.out",
-                "--debug"
+                "${workspaceFolder}/build/simulation/utils.o",
+                "${workspaceFolder}/build/simulation/utils_test.o"
             ],
             "group": "build",
             "dependsOn": [
-                "sim util methods"
+                "compile sim util tests"
             ]
         },
         {
-            "label": "hw1",
+            "label": "compile sim util tests",
             "type": "shell",
             "command": "clang++",
             "args": [
                 "-std=c++17",
                 "-stdlib=libc++",
-                "01_intro/hw1.cpp",
+                "-c",
+                "-o",
+                "${workspaceFolder}/build/simulation/utils_test.o",
+                "${workspaceFolder}/src/simulation/utils_test.cpp",
+                "--debug"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "compile sim util methods",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
+                "-o",
+                "${workspaceFolder}/build/simulation/utils.o",
+                "${workspaceFolder}/src/simulation/utils.cpp",
+                "-c",
+                "--debug"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "hw1 - compile and link",
+            "type": "shell",
+            "command": "clang++",
+            "args": [
+                "-std=c++17",
+                "-stdlib=libc++",
                 "-o",
                 "01_intro/hw1.out",
+                "01_intro/hw1.cpp",
                 "--debug"
             ],
             "group": "test"
