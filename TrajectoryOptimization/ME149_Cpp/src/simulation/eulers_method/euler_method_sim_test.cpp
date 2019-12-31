@@ -4,7 +4,7 @@
 #include "euler_method_sim.h"
 #include <vector>
 
-#include "../modelSystem/dynamics_model.h"
+#include "../../modelSystem/dynamics_model.h"
 
 std::vector<float> test_dynamics(state_type &x, float t){
     std::vector<float> dx;
