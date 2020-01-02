@@ -9,7 +9,7 @@ BUILDDIR = $(ROOT_FOLDER)/build/$(LOCALDIR)
 SOURCES:=$(wildcard $(SOURCEDIR)/*.cpp)
 OBJ:=$(patsubst $(SOURCEDIR)/%.cpp,$(BUILDDIR)/%.o,$(SOURCES))
 
-MAIN_EXEC = lorenz_test.out
+MAIN_EXEC = $(BUILDDIR)/lorenz_test.out
 
 MAIN_EXEC_DEPENDS = $(BUILDDIR)/../dynamics_model.o \
   $(BUILDDIR)/../../simulation/eulers_method/euler_method_sim.o \

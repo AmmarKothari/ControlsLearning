@@ -60,3 +60,15 @@ TEST_CASE("Euler method", "[simple_pendulum_euler_method]"){
     
     euler_method_sim(simple_pendulum_forward_dynamics, t_span, x0, t_max_step, z_grid, t_grid);
 }
+
+TEST_CASE("Euler method Object", "[simple_pendulum_object_euler_method]"){
+    SimplePendulum *simple_pendulum = new SimplePendulum;
+    float t_span[2] = {0.0, 1.0};
+    float t_max_step = 0.1;
+    std::vector<float> x0 = {0.0, M_PI_2};
+    
+    std::vector<state_type> z_grid;
+    std::vector<float> t_grid;
+    
+    euler_method_sim(simple_pendulum, t_span, x0, t_max_step, z_grid, t_grid);
+}

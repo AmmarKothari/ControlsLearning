@@ -8,7 +8,7 @@ Lorenz::Lorenz(float sigma_in, float rho_in, float beta_in){
 
 state_type Lorenz::forward_dynamics(state_type &state, float t){
     state_type dx_next;
-    // dx_next = lorenz_forward_dynamics(state, t, sigma, rho, beta);
+    dx_next = lorenz_forward_dynamics(state, t, sigma, rho, beta);
     return dx_next;
 };
 

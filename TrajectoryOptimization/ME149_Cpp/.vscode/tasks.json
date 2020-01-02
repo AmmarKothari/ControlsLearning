@@ -11,11 +11,19 @@
                 "-I",
                 "/Users/ammarkothari/Projects/ControlsLearning/LearningCpp/math_cpp/utils",
                 "${workspaceFolder}/src/02_simulation_basics/hw_2.cpp",
+                "${workspaceFolder}/build/modelSystem/simple_pendulum/simple_pendulum.o",
+                "${workspaceFolder}/build/modelSystem/lorenz/lorenz.o",
+                "${workspaceFolder}/build/modelSystem/dynamics_model.o",
+                "${workspaceFolder}/build/simulation/eulers_method/euler_method_sim.o",
+                "${workspaceFolder}/build/simulation/utils.o",
                 "-o",
                 "${workspaceFolder}/build/02_simulation_basics/hw_2.out",
                 "--debug"
             ],
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "dependsOn": [
                 "simple pendulum model",
                 "eulers method"
@@ -115,10 +123,7 @@
                 "${workspaceFolder}/src/modelSystem/simple_pendulum/simple_pendulum.cpp",
                 "--debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
         },
         {
             "label": "link eulers method test",
