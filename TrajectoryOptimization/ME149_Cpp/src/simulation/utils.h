@@ -3,6 +3,7 @@
 
 #include <vector>
 
-std::vector<float> linspace(float, float, size_t);
+template <typename T>
+std::vector<float> linspace(T, T, int);
 std::vector<float> arange(float, float, float);
 #endif

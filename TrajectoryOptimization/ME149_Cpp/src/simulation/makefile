@@ -1,5 +1,5 @@
 CXX = clang++
-CXX_FLAGS = -std=c++17 -stdlib=libc++
+CXX_FLAGS = -std=c++17 -stdlib=libc++ -g
 
 ROOT_FOLDER = /Users/ammarkothari/Projects/ControlsLearning/TrajectoryOptimization/ME149_Cpp
 LOCALDIR = simulation
@@ -23,3 +23,6 @@ $(OBJ): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.cpp
 
 $(BUILDDIR)/utils_test.out: $(OBJ)
 	$(CXX) $^ -o $@
+
+clean:
+	rm -rf $(BUILDDIR)/*.o $(BUILDDIR)/*.out

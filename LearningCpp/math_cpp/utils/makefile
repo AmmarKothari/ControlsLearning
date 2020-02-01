@@ -11,6 +11,9 @@ gen_noise_data.o: gen_noise_data.cpp vector_ops.o
 vector_ops.o: vector_ops.cpp
 	$(CXX) $(CXXFLAGS) vector_ops.cpp -c -o vector_ops.o
 
+template.o: template.cpp
+	$(CXX) $(CXXFLAGS) template.cpp -c -o template.o
+
 test_gen_noise_data: gen_noise_data.o test_gen_noise_data.cpp
 	$(CXX) $(CXXFLAGS) test_gen_noise_data.cpp -o test_gen_noise_data
 
@@ -25,6 +28,9 @@ test_write_sin_noisy_data: gen_noise_data.o write_noise_data.cpp
 	$(CXX) $(CXXFLAGS) write_noise_data.cpp -o write_noise_data
 	./write_noise_data
 	python plot_noisy_data.py --sin_data
+
+test_template: template.o template.cpp
+	$(CXX) $(CXXFLAGS) template.cpp -o template
 
 clobber:
 	rm -f gen_noise_data test_gen_noise_data

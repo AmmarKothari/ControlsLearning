@@ -3,7 +3,8 @@
 // TODO: Move these into a helper folder
 
 // Cooler implementation: https://gist.github.com/mortenpi/f20a93c8ed3ee7785e65
-std::vector<float> linspace(float min, float max, size_t N){
+template <typename T>
+std::vector<float> linspace(T min, T max, int N){
     std::vector<float> out_linspace;
     float delta = (max - min) / float(N-1);
     for (int i=0; i<N; i++){

@@ -20,10 +20,7 @@
                 "${workspaceFolder}/build/02_simulation_basics/hw_2.out",
                 "--debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
             "dependsOn": [
                 "simple pendulum model",
                 "eulers method"
@@ -174,49 +171,19 @@
             "group": "build"
         },
         {
-            "label": "link sim util tests",
+            "label": "make sim utils",
             "type": "shell",
-            "command": "clang++",
+            "command": "make",
             "args": [
-                "-o",
-                "${workspaceFolder}/build/simulation/utils_test.out",
-                "${workspaceFolder}/build/simulation/utils.o",
-                "${workspaceFolder}/build/simulation/utils_test.o"
+                "all"
             ],
-            "group": "build",
-            "dependsOn": [
-                "compile sim util tests"
-            ]
-        },
-        {
-            "label": "compile sim util tests",
-            "type": "shell",
-            "command": "clang++",
-            "args": [
-                "-std=c++17",
-                "-stdlib=libc++",
-                "-c",
-                "-o",
-                "${workspaceFolder}/build/simulation/utils_test.o",
-                "${workspaceFolder}/src/simulation/utils_test.cpp",
-                "--debug"
-            ],
-            "group": "build"
-        },
-        {
-            "label": "compile sim util methods",
-            "type": "shell",
-            "command": "clang++",
-            "args": [
-                "-std=c++17",
-                "-stdlib=libc++",
-                "-o",
-                "${workspaceFolder}/build/simulation/utils.o",
-                "${workspaceFolder}/src/simulation/utils.cpp",
-                "-c",
-                "--debug"
-            ],
-            "group": "build"
+            "options": {
+                "cwd": "${workspaceFolder}/src/simulation"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
             "label": "hw1 - compile and link",
