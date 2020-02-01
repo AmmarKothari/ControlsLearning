@@ -35,3 +35,10 @@ octave-workspace
 *.pyc
 *.so
 *.o
+
+
+# Any pycharm stuff
+**/.idea/*
+
+# Any venv stuff
+**/venv/*

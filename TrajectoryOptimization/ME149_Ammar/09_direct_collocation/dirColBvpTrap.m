@@ -103,7 +103,7 @@ P1.Aeq = [];
 P1.beq = [];
 P1.lb = [];
 P1.ub = [];
-P1.nonlcon = @(DV) dynamicsConstraints(DV, dynFunc, unpackFunc, hStep, problem.func.bndCst);
+P1.nonlcon = @(DV) dynamicsConstraints(DV, dynFunc, unpackFunc, hStep, problem.func.bndCst, problem.guess.time);
 P1.nonlcon(P1.x0);
 P1.options = problem.nlpOpt;
 P1.solver = 'fmincon';
@@ -145,24 +145,23 @@ function J = objFunc(DV, unpackFunc, hStep, pathObj)
     b = 0*u(1:end-1);
     u_upper = pathObj(b,b,u(1:end-1));
     u_lower = pathObj(b,b,u(2:end));
-    J = hStep/2*sum(u_upper + u_lower);
+    J = 0.5*sum(hStep .* (u_upper + u_lower));
 end
 
-function [c, ceq] = dynamicsConstraints(DV, dynFunc, unpackFunc, hStep, boundaryFunc)
+function [c, ceq] = dynamicsConstraints(DV, dynFunc, unpackFunc, hStep, boundaryFunc, hSegState)
     % trapezoidal integration
-    c = [];
     [x,u] = unpackFunc(DV);
     x_lower = x(:,1:end-1);
     x_upper = x(:,2:end);
     xd = dynFunc(0,x,u);
     xd_lower = xd(:, 1:end-1);
     xd_upper = xd(:, 2:end);
-    x_bar = x_lower + hStep/2*(xd_lower + xd_upper);
+    x_bar = x_lower + hStep/2.*(xd_lower + xd_upper);
     defects = (x_upper - x_bar)';
     
     % Boundary constraint:
-    t0 = 0;
-    tF = 0;
+    t0 = hSegState(1);
+    tF = hSegState(end);
     x0 = x(:, 1);
     xF = x(:, end);
     [bndCstIneq, bndCstEq] = boundaryFunc(t0, tF, x0, xF);
