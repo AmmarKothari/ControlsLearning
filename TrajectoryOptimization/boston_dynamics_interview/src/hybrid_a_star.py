@@ -3,6 +3,9 @@ import heapq
 import math
 import functools
 
+import pdb
+
+
 class Node:
     def __init__(self, g, c, discrete_pos, pos, turning_radius, distance, parent_node=None):
         # Estimated cost to go
@@ -39,12 +42,16 @@ class NodeList:
     def get_lowest_cost(self):
         return heapq.nlargest(1, self.list)[0]
 
+    @functools.singledispatch
     def find_node(self, match_discrete_pos):
-        stop_search_at = -1
         for i, node in enumerate(self.list):
             if self._is_node_discrete_pos_equal(node, match_discrete_pos):
                 return self.list.pop(i)
         return None
+
+    @find_node.register(Node)
+    def _(self, match_node):
+        self.find_node(match_node.discrete_pos)
 
     def _is_node_discrete_pos_equal(self, node1, match_discrete_pos):
         for v, z in zip(node1.discrete_pos, match_discrete_pos):
@@ -52,27 +59,17 @@ class NodeList:
                 return False
         return True
 
-
-class RSModel:
-    def step(self, start, turning_radius, drive_distance):
-        theta = self._calc_theta(turning_radius, drive_distance)
-        x_new = start[0] + turning_radius * math.cos(start[2])
-        y_new = start[1] + turning_radius * math.sin(start[2])
-        yaw_new = start[2] + theta
-        return x_new, y_new, yaw_new
-
-    @functools.lru_cache()
-    def _calc_theta(self, turning_radius, drive_distance):
-        return drive_distance / turning_radius * 2 * math.pi
+    def __len__(self):
+        return len(self.list)
 
 
 
 
 class HybridAStarConfig:
-    def __init__(self, model, heuristic, map, max_turning_radius, max_drive_distance):
+    def __init__(self, model, heuristic, obstacle_map, max_turning_radius, max_drive_distance):
         self.model = model
         self.heuristic = heuristic
-        self.map = map
+        self.obstacle_map = obstacle_map
         self.max_turning_radius = max_turning_radius
         # self.turning_radius_steps = turning_radius_steps
         self.max_drive_distance = max_drive_distance
@@ -90,13 +87,29 @@ class HybridAStar():
 
 
     def find_path(self, start, goal, obstacle_checker):
-        priority_queue = []
+        priority_queue = NodeList()
         closed_set = {}
+        path = []
 
         start_node = self.get_start_node(start, goal)
+        priority_queue.add(start_node)
 
-        heapq.heappush(priority_queue, start_node)
-        new_nodes = self.expand_node(start_node)
+        while len(priority_queue):
+            lowest_cost_node = priority_queue.get_lowest_cost()
+            for new_pos in self.expand_node(lowest_cost_node):
+                node_for_pos = priority_queue.find_node(new_pos)
+                if node_for_pos is None:
+                    pass
+                    # Add node
+                    # if within goal region, then stop search
+                else:
+                    pass
+                    # check if new cost is lower than current cost
+                        # if yes, update node with new info
+                        # else, do nothing.
+            # add just expanded node to the closed set
+        # reconstruct path
+        return path
 
     def get_start_node(self, start, goal):
         return Node(0, self.config.heuristic.cost(start, goal), self.config.map.to_map_pos(start), start, 0.0, 0.0)
@@ -104,6 +117,5 @@ class HybridAStar():
     def expand_node(self, node):
         for turning_radius in self.turning_radii:
             for drive_distance in self.drive_distances:
-                next_pt = self.config.model.step(node.pos, turning_radius, drive_distance)
-
+                yield self.config.model.step(node.pos, turning_radius, drive_distance)
 

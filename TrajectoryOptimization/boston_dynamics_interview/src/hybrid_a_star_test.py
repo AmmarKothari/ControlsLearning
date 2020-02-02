@@ -34,7 +34,7 @@ def test_priority_queue(n1, n2):
 def test_find_node(n1, n2):
     node_queue = hybrid_a_star.NodeList()
     node_queue.add(n1)
-    assert node_queue.find_node(n1)
+    assert node_queue.find_node(n1.discrete_pos)
     assert node_queue.find_node(n2) is None
 
 
