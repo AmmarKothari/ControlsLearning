@@ -42,3 +42,6 @@ octave-workspace
 
 # Any venv stuff
 **/venv/*
+
+# Weird caching thing maybe from pytest?
+**/.cache/

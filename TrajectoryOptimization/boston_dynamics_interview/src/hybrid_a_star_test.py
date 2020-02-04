@@ -12,9 +12,11 @@ from src import hybrid_a_star
 def map_with_no_obstacles():
     return np.zeros((10, 10))
 
+
 @pytest.fixture()
 def n1():
     return hybrid_a_star.Node(10, 0, (0.0, 0.0, 0.0), (0.1, 0.1, 1.0), 0.1, 0.1)
+
 
 @pytest.fixture
 def n2():
