@@ -7,6 +7,10 @@ import numpy as np
 
 import scipy.optimize
 
+from src import cost_functions
+from src.optimizer_helpers import pack, unpack
+
+
 @pytest.fixture
 def di():
     return double_integrator_model.DoubleIntegrator()
@@ -24,6 +28,7 @@ class TrajectoryConfig:
         self.final_state = final_state
         self.duration = duration
 
+
 class OptimizerConfig:
     def __init__(self, objective_func):
         pass
@@ -31,21 +36,7 @@ class OptimizerConfig:
 
 def object_func(dec_variables, ps_config):
     state, control = unpack(dec_variables, ps_config)
-    return sum(path_integral(control) * ps_config.h_step)
-
-
-def path_integral(controls):
-    return sum([sum([x**2 for x in control]) for control in controls])
-
-
-def pack(states, control):
-    return np.hstack((np.hstack(states), np.hstack(control))).reshape(-1, 1)
-
-
-def unpack(dec_vars, ps_config):
-    state = np.reshape(dec_vars[:], (-1, ps_config.n_states), order='F')
-    control = np.reshape(dec_vars[(ps_config.n_grid * ps_config.n_states):], (-1, ps_config.n_control), order='F')
-    return state, control
+    return cost_functions.path_integral(control) * ps_config.h_step
 
 
 def get_defect(dec_vars, n_step, ps_config):
@@ -91,17 +82,20 @@ def test_ps_di(ps_di, di):
 
     # Set boundary conditions
     eq_constraints = set_boundary_conditions(ps_config)
+    assert np.isreal(eq_constraints[0]['fun'](dec_vars_0))
 
     # Set knot point (non-linear) constraints - Woooo!
     dynamic_eq_constraints = set_dynamic_constraints(ps_config)
+    assert np.isreal(dynamic_eq_constraints[0]['fun'](dec_vars_0))
 
     all_constraints = eq_constraints + dynamic_eq_constraints
-    all_constraints[-1]['fun'](dec_vars_0)
+
+    # Log initial costs
+    print('Initial Costs: {:.3f}'.format(obj_func(dec_vars_0)))
 
     # in practice, we could add some inequality constraints to the actual control inputs
-
-    scipy.optimize.minimize(obj_func, dec_vars_0, method='SLSQP', constraints=all_constraints)
     pdb.set_trace()
+    out = scipy.optimize.minimize(obj_func, dec_vars_0, method='SLSQP', constraints=all_constraints)
 
 
 
@@ -117,8 +111,10 @@ def set_dynamic_constraints(ps_config):
 
     dynamic_eq_constraints = []
     for i_step in range(ps_config.n_grid-1):
-        constraint = {'type': 'eq', 'fun': lambda x: get_defect(x, i_step, ps_config)}
-        dynamic_eq_constraints.append(constraint)
+        n_grid_defect_func = lambda x: get_defect(x, i_step, ps_config)
+        for i_control in range(ps_config.n_control):
+            constraint = {'type': 'eq', 'fun': lambda x: n_grid_defect_func(x)[i_control]}
+            dynamic_eq_constraints.append(constraint)
     return dynamic_eq_constraints
 
 
