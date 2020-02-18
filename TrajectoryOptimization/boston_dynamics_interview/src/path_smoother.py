@@ -6,6 +6,10 @@ import numpy as np
 import scipy.optimize
 
 
+class SmootherException(Exception):
+    pass
+
+
 class PathSmootherConfig:
     def __init__(self, n_states, n_control, t_boundary, state_boundary, n_grid, t_grid, h_step, model):
         self.n_states = n_states
@@ -23,18 +27,66 @@ class PathSmoother:
         self.num_states = num_states
         self.num_control_states = num_control_states
         self.dyn_func = dyn_func
+        self.initial_states = None
+        self.initial_controls = None
+        self.start_state = None
+        self.end_state = None
 
-    def smooth(self, initial_control_path, obj_func, constraint_func):
-        import pdb
-        pdb.set_trace()
-        scipy.optimize.minimize(obj_func, initial_control_path)
+    def set_initial_guess(self, initial_states, initial_controls):
+        self.initial_states = initial_states
+        self.initial_controls = initial_controls
 
-    def pack_decision_vars(self, control_path):
-        return np.reshape(control_path, (-1, 1), order='F').flatten()
+    def set_boundary_states(self, start_state, end_state):
+        self.start_state = start_state
+        self.end_state = end_state
+
+    def smooth_single_shooting(self, initial_guess, obj_fun, bounds=None):
+        """Variation in the control to get from the start state to the end state"""
+        constraints = []
+        for i_state in range(self.num_states):
+            constraints.append({'type': 'eq', 'fun': lambda x: self.get_boundary_constraint(x, self.start_state, 0, i_state)})
+            constraints.append({'type': 'eq', 'fun': lambda x: self.get_boundary_constraint(x, self.end_state, -1, i_state)})
+        import pdb; pdb.set_trace()
+
+
+    def smooth(self, obj_func, bounds=None):
+        constraints = []
+        if self.dyn_func is not None:
+            for i_step in range(len(self.initial_states)-1):
+                for i_state in range(self.num_states):
+                    constraints.append({'type': 'eq', 'fun': lambda x: self.get_non_linear_constraint(x, i_step, i_state)})
+
+        for i_state in range(self.num_states):
+            constraints.append({'type': 'eq', 'fun': lambda x: self.get_boundary_constraint(x, self.start_state, 0, i_state)})
+            constraints.append({'type': 'eq', 'fun': lambda x: self.get_boundary_constraint(x, self.end_state, -1, i_state)})
+
+        initial_guess = self.pack_decision_vars(self.initial_states, self.initial_controls)
+        solution = scipy.optimize.minimize(obj_func, initial_guess, method='SLSQP', bounds=bounds, constraints=constraints)
+        if not solution.success:
+            print(solution)
+            pdb.set_trace()
+            raise SmootherException('Failed to find solution from optimization.')
+        return solution.x
+
+    def pack_decision_vars(self, states, controls):
+        state_controls = np.hstack((states, controls))
+        return np.reshape(state_controls, (-1, 1), order='F').flatten()
 
     def unpack_decision_vars(self, decision_vars):
-        return np.reshape(decision_vars, (-1, self.num_states), order='F')
+        stacked = np.reshape(decision_vars, (-1, self.num_states + self.num_control_states), order='F')
+        return stacked[:, :self.num_states], stacked[:, self.num_states:]
 
+    def get_non_linear_constraint(self, decision_vars, i_step, i_state):
+        states, control = self.unpack_decision_vars(decision_vars)
+        est_next_state = self.dyn_func(states[i_step], control[i_step])
+        return est_next_state[i_state] - states[i_step+1][i_state]
+
+    def get_boundary_constraint(self, decision_vars, state, i_step, i_state):
+        states, control = self.unpack_decision_vars(decision_vars)
+        if not isinstance(state, np.ndarray):
+            state = np.expand_dims(np.array(state), axis=0)
+        print(states[i_step, i_state], state[i_state])
+        return states[i_step, i_state] - state[i_state]
 
     def rk4(self, dyn_func, t_prev, t_next, z_prev):
         # type: (Callable[[float, Sequence[float]], Sequence[float]], float, float, Sequence[float]) -> Tuple[Sequence[float], int]
