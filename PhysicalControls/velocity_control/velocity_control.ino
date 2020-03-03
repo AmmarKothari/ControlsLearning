@@ -41,7 +41,7 @@ void setup_serial(){
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB
   }
-  response_timer.begin(empty_status, 1000000);
+  response_timer.begin(empty_status, 1*1000000);
 }
 
 void setup() {
@@ -64,8 +64,4 @@ void loop() {
             Serial.println(in_motor_speed);
         }
     }
-//  for (int speed=100; speed<255; speed++){
-//    spin_motor_forward(speed);
-//    blink_light(led_pin);
-//  }
 }
