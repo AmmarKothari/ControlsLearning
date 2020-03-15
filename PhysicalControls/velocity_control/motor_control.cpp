@@ -2,16 +2,16 @@
 #include "motor_control.h"
 
 SimpleMotorControl::SimpleMotorControl(int in_enable_pin, int in_direction_pin_0, int in_direction_pin_1){
-    enable_pin = in_enable_pin;
-    in_direction_pin_0 = direction_pin_0;
-    in_direction_pin_1 = direction_pin_1;
+    _enable_pin = in_enable_pin;
+    _direction_pin_0 = in_direction_pin_0;
+    _direction_pin_1 = in_direction_pin_1;
     delay_between_writes_ms = 500;
 };
 
 void SimpleMotorControl::setup(){
-    pinMode(enable_pin, OUTPUT);
-    pinMode(direction_pin_0, OUTPUT);
-    pinMode(direction_pin_1, OUTPUT);
+    pinMode(_enable_pin, OUTPUT);
+    pinMode(_direction_pin_0, OUTPUT);
+    pinMode(_direction_pin_1, OUTPUT);
 };
 
 void SimpleMotorControl::spin_motor(int in_speed){
@@ -24,23 +24,25 @@ void SimpleMotorControl::spin_motor(int in_speed){
 };
 
 void SimpleMotorControl::spin_motor_forward(int in_speed){
-//  int speed = clip_speed(in_speed);
-    int speed = in_speed;
-  analogWrite(encoder_A_pin, speed);
-  digitalWrite(direction_pin_0, HIGH);
-  digitalWrite(direction_pin_1, LOW);
+  int speed = _clip_speed(in_speed);
+  analogWrite(_enable_pin, speed);
+  digitalWrite(_direction_pin_0, HIGH);
+  digitalWrite(_direction_pin_1, LOW);
+  // How to get around this delay?
+  // Last time a write occurred otherwise skip
+  // Or if value changed
   delay(delay_between_writes_ms);
 };
 
 void SimpleMotorControl::spin_motor_backward(int in_speed){
-  int speed = clip_speed(in_speed);
-  analogWrite(encoder_A_pin, speed);
-  digitalWrite(direction_pin_0, LOW);
-  digitalWrite(direction_pin_1, HIGH);
+  int speed = _clip_speed(in_speed);
+  analogWrite(_enable_pin, speed);
+  digitalWrite(_direction_pin_0, LOW);
+  digitalWrite(_direction_pin_1, HIGH);
   delay(delay_between_writes_ms);
 };
 
-int SimpleMotorControl::clip_speed(int in_speed){
+int SimpleMotorControl::_clip_speed(int in_speed){
   int speed;
   if (in_speed < 0){
     speed = 0;

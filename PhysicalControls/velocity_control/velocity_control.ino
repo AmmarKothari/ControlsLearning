@@ -1,6 +1,5 @@
-
 #include <IntervalTimer.h>
-#include "motor_control.h"
+#include "motor_control_with_encoder.h"
 
 int motor_pin_1 = 0;
 int motor_pin_2 = 1;
@@ -12,9 +11,12 @@ int encoder_B = 4;
 int encoder_pos = 0;
 
 int SERIAL_BAUD_RATE = 9600;
-SimpleMotorControl motor_1(enable_A, motor_pin_1, motor_pin_2);
+MotorControlWithEncoder motor_1(enable_A, motor_pin_1, motor_pin_2, encoder_A, encoder_B);
 IntervalTimer response_timer;
 String inString;
+String motorState;
+
+float angular_position;
 
 void blink_light(int pin){
   digitalWrite(pin, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -28,14 +30,6 @@ void empty_status(){
     Serial.println(millis() / 1000);
 }
 
-
-void setup_motor(){
-  pinMode(led_pin, OUTPUT);
-
-  pinMode(encoder_A, OUTPUT);
-  pinMode(encoder_B, OUTPUT);
-}
-
 void setup_serial(){
   Serial.begin(SERIAL_BAUD_RATE);
   while (!Serial) {
@@ -45,8 +39,12 @@ void setup_serial(){
 }
 
 void setup() {
-    motor_1.setup();
+    motor_1.setup(motor_1_encoder_count_a);
     setup_serial();
+}
+
+void motor_1_encoder_count_a(){
+	motor_1._encoder->_count_a();
 }
 
 void loop() {
@@ -59,9 +57,12 @@ void loop() {
             int separate_at = inString.lastIndexOf(':');
             String in_motor_speed_string = inString.substring(separate_at+1);
             int in_motor_speed = int(in_motor_speed_string.toInt());
-            motor_1.spin_motor(in_motor_speed);
+            motor_1._motor->spin_motor(in_motor_speed);
             Serial.print("Setting motor speed to ");
             Serial.println(in_motor_speed);
         }
+        angular_position = motor_1._encoder->get_angular_position();
+        Serial.print("Angular position of motor:");
+        Serial.print(angular_position);
     }
 }

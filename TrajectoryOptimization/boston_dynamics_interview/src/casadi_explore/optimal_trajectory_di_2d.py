@@ -75,6 +75,7 @@ no_go_region = sg.Polygon(([-5, -5], [-5, 5], [5, 5], [5, -5]))
 # for k in range(num_state_steps):
 #     pdb.set_trace()
 #     opti.subject_to(no_go_region.contains(sg.Point(q_state[:2, k])))
+
 # Boundary Conditions
 opti.subject_to(q_state[:, 0] == 0)  # Everything starts at zero
 opti.subject_to(u[:, 0] == 0)  # No control input at the start

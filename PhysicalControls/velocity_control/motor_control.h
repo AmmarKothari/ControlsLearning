@@ -13,12 +13,10 @@ class SimpleMotorControl{
         void spin_motor(int);
         void setup();
     private:
-        int enable_pin;
-        int direction_pin_0;
-        int direction_pin_1;
-        int encoder_A_pin;
-        int encoder_B_pin;
-        int clip_speed(int);
+        int _enable_pin;
+        int _direction_pin_0;
+        int _direction_pin_1;
+        int _clip_speed(int);
 };
 
 
