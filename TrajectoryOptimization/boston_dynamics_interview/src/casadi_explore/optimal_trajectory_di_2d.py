@@ -49,7 +49,7 @@ tf = opti.variable()
 
 
 # Objective Functions
-# opti.minimize(tf)
+opti.minimize(tf)
 # opti.minimize(minimize_acceleration(u))
 opti.minimize(minimize_jerk(u))
 

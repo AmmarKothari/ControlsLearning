@@ -1,11 +1,9 @@
-import heapq
-
 import numpy as np
 import pytest
 
 # import pdb
 # import matplotlib.pyplot as plt
-from src import hybrid_a_star
+from src.hybrid_a_star import hybrid_a_star
 
 
 @pytest.fixture()

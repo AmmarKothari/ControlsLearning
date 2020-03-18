@@ -14,10 +14,21 @@ class Node:
         # Actual cost to this node
         self.c = c
 
+        # Discrete position on search grid
         self.discrete_pos = discrete_pos
+
+        # Continuous position
         self.pos = pos
-        self.turning_radius = turning_radius
+
+        # Previous node to find the path home
+        self.parent_node = parent_node
+
+        # Values to rebuild control path
+        # Distance driven
         self.distance = distance
+
+        # Turning radius
+        self.turning_radius = turning_radius
 
     def get_total_cost(self):
         return self.g + self.c
