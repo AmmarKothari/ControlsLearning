@@ -1,132 +1,121 @@
-import numpy as np
-import heapq
 import math
-import functools
+
+import numpy as np
+
+from src.hybrid_a_star import node, obstacle_check as obstacle_check_module
 
 import pdb
 
 
-class Node:
-    def __init__(self, g, c, discrete_pos, pos, turning_radius, distance, parent_node=None):
-        # Estimated cost to go
-        self.g = g
-
-        # Actual cost to this node
-        self.c = c
-
-        # Discrete position on search grid
-        self.discrete_pos = discrete_pos
-
-        # Continuous position
-        self.pos = pos
-
-        # Previous node to find the path home
-        self.parent_node = parent_node
-
-        # Values to rebuild control path
-        # Distance driven
-        self.distance = distance
-
-        # Turning radius
-        self.turning_radius = turning_radius
-
-    def get_total_cost(self):
-        return self.g + self.c
-
-    def __lt__(self, other):
-        return self.get_total_cost() < other.get_total_cost()
-
-    def __gt__(self, other):
-        return not self < other
-
-    def __eq__(self, other):
-        return self.get_total_cost() == other.get_total_cost()
-
-
-class NodeList:
-    def __init__(self):
-        self.list = []
-
-    def add(self, node):
-        heapq.heappush(self.list, node)
-
-    def get_lowest_cost(self):
-        return heapq.nlargest(1, self.list)[0]
-
-    @functools.singledispatch
-    def find_node(self, match_discrete_pos):
-        for i, node in enumerate(self.list):
-            if self._is_node_discrete_pos_equal(node, match_discrete_pos):
-                return self.list.pop(i)
-        return None
-
-    @find_node.register(Node)
-    def _(self, match_node):
-        self.find_node(match_node.discrete_pos)
-
-    def _is_node_discrete_pos_equal(self, node1, match_discrete_pos):
-        for v, z in zip(node1.discrete_pos, match_discrete_pos):
-            if v != z:
-                return False
-        return True
-
-    def __len__(self):
-        return len(self.list)
-
-
-
-
 class HybridAStarConfig:
-    def __init__(self, model, heuristic, obstacle_map, max_turning_radius, max_drive_distance):
+    def __init__(self, model, heuristic, obstacle_check, max_turning_radius, max_drive_distance):
         self.model = model
         self.heuristic = heuristic
-        self.obstacle_map = obstacle_map
+        self.obstacle_check = obstacle_check
         self.max_turning_radius = max_turning_radius
         # self.turning_radius_steps = turning_radius_steps
         self.max_drive_distance = max_drive_distance
         # self.drive_distance_steps =
-
+        # self.cost_func = cost_func
         self.grid_size = 1.0
 
 
-class HybridAStar():
+class HybridAStar:
     def __init__(self, config):
         self.config = config
         self.turning_radii = np.linspace(-self.config.max_turning_radius, self.config.max_turning_radius, 3)
         self.drive_distances = [-self.config.max_drive_distance, self.config.max_drive_distance]
-        # self.motion_primitives = self.get_motion_primitives()
+        self.open_nodes = node.NodeHeap()
+        self.closed_nodes = node.NodeList()
 
-
-    def find_path(self, start, goal, obstacle_checker):
-        priority_queue = NodeList()
+    def find_path(self, start, goal):
+        # start and end should be in continuous obstacle map coordinates
         closed_set = {}
         path = []
 
         start_node = self.get_start_node(start, goal)
-        priority_queue.add(start_node)
-
-        while len(priority_queue):
-            lowest_cost_node = priority_queue.get_lowest_cost()
-            for new_pos in self.expand_node(lowest_cost_node):
-                node_for_pos = priority_queue.find_node(new_pos)
-                if node_for_pos is None:
-                    pass
-                    # Add node
-                    # if within goal region, then stop search
+        self.open_nodes.add(start_node)
+        nodes_expanded = 1
+        close_to_goal = False
+        path = []
+        while len(self.open_nodes) and not close_to_goal:
+            lowest_cost_node = self.open_nodes.pop_lowest_cost_node()
+            print('Current lowest cost: {:.3f}'.format(lowest_cost_node.total_cost))
+            neighbor_poses = self.expand_node(lowest_cost_node)
+            for neighbor_pose, distance, turning_radius in neighbor_poses:
+                neighbor_node = self.open_nodes.get_node(neighbor_pose)
+                # Because nodes that have already been expanded are not re-expanded,
+                # will result in potentially suboptimal path.
+                if self.closed_nodes.is_in_list(neighbor_node):
+                    continue
+                # TODO: Change this with a cost function that is part of the config
+                transition = abs(distance * turning_radius)
+                if neighbor_node:
+                    # check if cost to reach is lower than current cost to reach of node.
+                    if neighbor_node.g > (lowest_cost_node.g + transition):
+                        # Update node with new info
+                        neighbor_node.g = lowest_cost_node.g + transition
+                        neighbor_node.parent_node = lowest_cost_node
+                        neighbor_node.pos = neighbor_pose
+                    self.open_nodes.add(neighbor_node)
                 else:
-                    pass
-                    # check if new cost is lower than current cost
-                        # if yes, update node with new info
-                        # else, do nothing.
-            # add just expanded node to the closed set
-        # reconstruct path
+                    new_node = self._add_new_node(distance, goal, lowest_cost_node, neighbor_pose, transition,
+                                                  turning_radius)
+                    self.open_nodes.add(new_node)
+                    # if within goal region, then stop search
+                    if math.hypot(new_node.pos[0] - goal[0], new_node.pos[1] - goal[1]) < 2.0:
+                        close_to_goal = True
+                        path = self.build_path(new_node, goal)
+
+            nodes_expanded += 1
+            if nodes_expanded % 1000 == 0:
+                print('Total nodes expanded: {}'.format(nodes_expanded))
+            self.closed_nodes.add(lowest_cost_node)
+        print('Total nodes expanded: {}'.format(nodes_expanded))
+        print('Total path length: {}'.format(len(path)))
+        map_path = []
+        for waypoint in path:
+            map_path.append(obstacle_check_module.from_continuous_obstacle_map_pos(waypoint,
+                                                                                   self.config.obstacle_check.obstacle_map))
+        return map_path
+
+    def build_path(self, new_node, goal):
+        current_node = new_node
+        path = []
+        while True:
+            if current_node is None:
+                path.reverse()
+                break
+            path.append(current_node.pos)
+            current_node = current_node.parent_node
+        path.append(goal)
         return path
 
+    def _add_new_node(self, distance, goal, lowest_cost_node, neighbor_pose, transition, turning_radius):
+        neighbor_discrete_pos = obstacle_check_module.to_discrete_obstacle_map_pos(neighbor_pose)
+        new_node = node.Node(g=lowest_cost_node.g + transition,
+                             c=self.config.heuristic(neighbor_pose, goal),
+                             discrete_pos=neighbor_discrete_pos,
+                             pos=neighbor_pose,
+                             parent_node=lowest_cost_node,
+                             distance=distance,
+                             turning_radius=turning_radius)
+        return new_node
+
     def get_start_node(self, start, goal):
-        return Node(0, self.config.heuristic.cost(start, goal), self.config.map.to_map_pos(start), start, 0.0, 0.0)
+        discrete_pos = obstacle_check_module.to_discrete_obstacle_map_pos(start)
+        start_node = node.Node(g=0,
+                               c=self.config.heuristic(start, goal),
+                               discrete_pos=discrete_pos,
+                               pos=start,
+                               parent_node=None,
+                               distance=0,
+                               turning_radius=0)
+        return start_node
 
     def expand_node(self, node):
         for turning_radius in self.turning_radii:
             for drive_distance in self.drive_distances:
-                yield self.config.model.step(node.pos, turning_radius, drive_distance)
-
+                neighbor_poses = self.config.model.step(node.pos, turning_radius, drive_distance)
+                for neighbor_pose in neighbor_poses:
+                    yield neighbor_pose, drive_distance, turning_radius

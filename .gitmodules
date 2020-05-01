@@ -1,0 +1,3 @@
+[submodule "SLAM_Cpp/SLAM_Cpp/Cpp/SLAM-Exploration"]
+	path = SLAM_Cpp/SLAM_Cpp/Cpp/SLAM-Exploration
+	url = https://github.com/patrick--/SLAM-Exploration

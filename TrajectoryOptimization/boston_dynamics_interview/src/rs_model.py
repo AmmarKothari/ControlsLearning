@@ -8,8 +8,8 @@ class RSModel:
     def step(self, start, steering_angle, drive_distance):
         x_new = start[0] + drive_distance * math.cos(start[2])
         y_new = start[1] + drive_distance * math.sin(start[2])
-        yaw_new = (start[2] + anum.sign(steering_angle) * math.tan(abs(steering_angle))) % (2 * math.pi)
-        return x_new, y_new, yaw_new
+        yaw_new = [start[2] + anum.sign(steering_angle) * math.tan(abs(steering_angle)) % (2 * math.pi)
+        return [x_new, y_new, yaw_new]
 
     def get_path_from_control(
             self, start, control_path):

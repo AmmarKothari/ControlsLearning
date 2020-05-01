@@ -1,0 +1,6 @@
+#pragma once
+float TICKS_TO_MM = 0.349;
+float WHEEL_BASE = 150.0;
+
+float SCANNER_DISPLACEMENT = 30.0;
+float MIN_VALID_SCAN_DISTANCE = 20.0;
