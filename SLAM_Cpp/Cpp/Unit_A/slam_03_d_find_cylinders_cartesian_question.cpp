@@ -1,14 +1,17 @@
-#include "matplotlibcpp.h"
-#include "lego_robot_log_file.h"
-#include "lego_robot_model.h"
-#include "constants.h"
 #include <fstream>
 #include <string>
 #include <math.h>
 #include <array>
 #include <iostream>
 #include <iomanip>
+
+#include "matplotlibcpp.h"
+#include "lego_robot_log_file.h"
+#include "lego_robot_model.h"
+#include "constants.h"
 #include "lego_robot_scan_handler.h"
+#include "output_formatting.h"
+#include "spatial_classes.h"
 
 #define DATA_PATH "../../Data/Unit_A/"
 #define SCAN_DATA_FN "robot4_scan.txt"
@@ -31,21 +34,12 @@ int main(){
     LegoRobotScanHandler lego_robot_scan_handler(MIN_VALID_SCAN_DISTANCE);
     std::vector<int> scan;
     std::vector<float> scan_der;
-    std::vector<std::array<float, 2>> cylinders;
-    std::array<float, 2> cylinders_xy;
+    std::vector<point> cylinders;
+    point cylinders_xy;
     float angle, x, y;
     for (auto scan: lego_log_file.scan_data){
         scan_der = lego_robot_scan_handler.scan_der(scan);
-        cylinders = lego_robot_scan_handler.find_cylinders(scan, scan_der, depth_jump);
-        all_cylinders << "D C ";
-        if (cylinders.size() > 0){
-            for (auto c: cylinders){
-                angle = beam_index_to_angle(c[0]);
-                x = (c[1] - cylinder_offset) * cos(c[0]);
-                y = (c[1] - cylinder_offset) * sin(c[0]);
-                all_cylinders << c[0] << "," << c[1] << " ";
-            }
-        }
-        all_cylinders << std::endl;
+        cylinders = lego_robot_scan_handler.find_cylinders_relative_xy(scan, scan_der, depth_jump, cylinder_offset);
+        relative_cylinders_file_format(all_cylinders, cylinders);
     }
 }

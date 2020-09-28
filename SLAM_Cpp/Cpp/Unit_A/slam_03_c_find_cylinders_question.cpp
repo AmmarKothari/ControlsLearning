@@ -24,13 +24,13 @@ int main(){
     std::vector<int> scan = lego_log_file.scan_data[8];
     LegoRobotScanHandler lego_robot_scan_handler(MIN_VALID_SCAN_DISTANCE);
     std::vector<float> scan_der = lego_robot_scan_handler.scan_der(scan);
-    std::vector<std::array<float, 2>> cylinders = lego_robot_scan_handler.find_cylinders(scan, scan_der, depth_jump);
+    std::vector<CylinderScanDef> cylinders = lego_robot_scan_handler.find_cylinders(scan, scan_der, depth_jump);
     std::cout << "scan_der size: " << scan_der.size() << std::endl;
     matplotlibcpp::plot(scan, "r-");
     std::vector<float> ray_positions, depth_positions;
     for (auto c: cylinders){
-        ray_positions.push_back(c[0]);
-        depth_positions.push_back(c[1]);
+        ray_positions.push_back(c.angle);
+        depth_positions.push_back(c.dist);
     }
     matplotlibcpp::plot(ray_positions, depth_positions, "bs");
     matplotlibcpp::show();

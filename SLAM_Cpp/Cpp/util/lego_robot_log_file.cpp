@@ -31,15 +31,24 @@ std::vector<int> get_scan_from_split_line(std::vector<std::string> split){
     return scan;
 }
 
+point get_landmark_from_split_line(std::vector<std::string> split){
+    point landmark;
+    // First value is "C" for cylinder but just ignoring that for now
+    landmark = {std::stof(split[2]), std::stof(split[3])};
+    return landmark;
+}
+
 
 void LegoRobotLogFile::read(std::string filename){
+    std::cout << "Loading file: " << filename << std::endl;
     std::ifstream data_file(filename);
     std::string line;
     std::vector<std::string> split;
 
-    bool first_ticks = true, first_scan_data = true;
+    bool first_ticks = true, first_scan_data = true, first_landmarks = true;
     std::vector<std::vector<int>> ticks;
     std::vector<int> tick, single_scan;
+    point landmark;
     if (data_file.is_open()){
         int lines_read = 0;
         while (getline(data_file, line)){
@@ -53,19 +62,31 @@ void LegoRobotLogFile::read(std::string filename){
                 tick = get_ticks_from_split_line(split);
                 abs_motor_ticks.push_back(tick);
             }
+
             if (split[0] == "S"){
                 if (first_scan_data){
                     first_scan_data = false;
                     scan_data.clear();
                 }
-                split = split_line(line);
                 single_scan = get_scan_from_split_line(split);
                 scan_data.push_back(single_scan);
+            }
+
+            if (split[0] == "L"){
+                if (first_landmarks){
+                    first_landmarks = false;
+                    landmarks.clear();
+                }
+                landmark = get_landmark_from_split_line(split);
+                landmarks.push_back(landmark);
             }
         }
         std::cout << "Lines read: " << lines_read << std::endl;
         if (scan_data.size() > 0){
             std::cout << "Scans: " << scan_data.size() << std::endl;
+        }
+        if (landmarks.size() > 0){
+            std::cout << "Landmarks: " << landmarks.size() << std::endl;
         }
 
         // Calculate relative motor ticks

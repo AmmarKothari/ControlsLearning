@@ -184,7 +184,7 @@ def slider_moved(index):
     info.config(text=logfile.info(i))
 
 def add_file():
-    filename = tkFileDialog.askopenfilename(filetypes = [("all files", ".*"), ("txt files", ".txt")])
+    filename = tkFileDialog.askopenfilename(filetypes = [("all files", ".*"), ("csv files", ".csv"), ("txt files", ".txt")])
     if filename:
         # If the file is in the list already, remove it (so it will be appended
         # at the end).

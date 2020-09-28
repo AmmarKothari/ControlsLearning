@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#define DATA_PATH "../../../Data/Unit_A/"
+#define DATA_PATH "../../Data/Unit_A/"
 #define MOTOR_DATA_FN "robot4_motors.txt"
 
 int main(){

@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <array>
+#include "spatial_classes.h"
 
 
 #define float_vec std::vector<float>
@@ -16,7 +18,7 @@ class LegoRobotLogFile{
         int_mat rel_motor_ticks;
         int_mat abs_motor_ticks;
         float_vec filtered_positions;
-        float_vec landmarks;
+        std::vector<point> landmarks;
         float_vec detected_cylinders;
         float last_ticks;
         void read(std::string filename);

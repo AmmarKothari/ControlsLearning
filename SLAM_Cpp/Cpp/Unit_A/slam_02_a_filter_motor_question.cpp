@@ -2,6 +2,7 @@
 #include "lego_robot_log_file.h"
 #include "lego_robot_model.h"
 #include "constants.h"
+#include "spatial_classes.h"
 #include <fstream>
 #include <string>
 #include <math.h>
@@ -23,13 +24,13 @@ int main(){
 
     LegoRobotModel lego_robot_model(TICKS_TO_MM, WHEEL_BASE, SCANNER_DISPLACEMENT);
 
-    std::array<float, 3> pre_pose = {0.0, 0.0, 0.0};
-    std::array<float, 3> post_pose = {0.0, 0.0, 0.0};
-    std::vector<std::array<float, 3>> filtered;
+    pose pre_pose = {0.0, 0.0, 0.0};
+    pose post_pose = {0.0, 0.0, 0.0};
+    std::vector<pose> filtered;
     for (size_t i=0; i< lego_log_file.rel_motor_ticks.size(); i++){
         post_pose = lego_robot_model.track_center_step(pre_pose, lego_log_file.rel_motor_ticks[i]);
         filtered.push_back(post_pose);
-        output << post_pose[0] << ", " << post_pose[1] << ", "<< post_pose[2] << std::endl;
+        output << post_pose.x << ", " << post_pose.y << ", "<< post_pose.theta << std::endl;
         pre_pose = post_pose;
     }
 }

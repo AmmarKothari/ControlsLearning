@@ -1,12 +1,13 @@
-#include "matplotlibcpp.h"
-#include "lego_robot_log_file.h"
-#include "lego_robot_model.h"
-#include "constants.h"
 #include <fstream>
 #include <string>
 #include <math.h>
 #include <array>
 #include <iostream>
+
+#include "matplotlibcpp.h"
+#include "lego_robot_log_file.h"
+#include "lego_robot_model.h"
+#include "constants.h"
 #include "lego_robot_scan_handler.h"
 
 #define DATA_PATH "../../Data/Unit_A/"
